@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CKO Test Harness</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
+</head>
+<body>
+  <div style="margin-bottom: 10px;">
+    <select id="action">
+      <option value="">Select your action:
+      <optgroup label="Events">
+        <option value="retrieve-event-types">Retrieve Event Types
+        <option value="retrieve-event">Retrieve Event
+        <option value="retrieve-event-notification">Retrieve Event Notification
+        <option value="retry-webhook">Retry Webhooks
+        <option value="retry-all-webhooks">Retry All Webhooks
+      </optgroup>
+      <optgroup label="Frames">
+        <option value="frames-token">Get Token
+      <optgroup label="Hosted Payment Page">
+        <option value="hpp-session">Get HPP Session
+      </optgroup>
+      <optgroup label="Payment Links">
+        <option value="payment-link">Get Payment Link
+      </optgroup>
+      <optgroup label="Payments">
+        <option value="request-payment">Request Payment
+        <option value="get-payment-details">Get Payment Details
+        <option value="get-payment-actions">Get Payment Actions
+        <option value="capture-payment">Capture Payment
+        <option value="refund-payment">Refund Payment
+        <option value="void-payment">Void Payment
+      </optgroup>
+      <optgroup label="Sources">
+        <option value="create-payment-source">Create Payment Source
+      </optgroup>
+      <optgroup label="Tokens">
+        <option value="request-token">Request Token
+      </optgroup>
+      <optgroup label="Webhooks">      
+        <option value="webhook-notifications">View All Webhook Notifications
+        <option value="retrieve-webhooks">Retrieve Webhooks
+        <option value="register-webhook">Register Webhook
+        <option value="retrieve-webhook">Retrieve Webhook
+        <option value="update-webhook">Update Webhook
+        <option value="partially-update-webhook">Partially Update Webhook
+        <option value="remove-webhook">Remove Webhook
+      </optgroup>
+    </select>
+    <input type="text" id="verb" value="" style="width: 75px;" disabled>
+    <input type="text" id="domain" value="" style="width: 225px;" disabled>
+    <input type="text" id="path" value="" style="width: 275px;">
+    <button>Submit</button>
+  </div>
+  <div style="margin-bottom: 5px;">
+    <textarea id="request-body" style="width: 75%; height: 200px;"></textarea>
+  </div>
+  <div>
+    <span id="response-status"></span>
+    <pre style="width: 75%"><code id="response-body"></code></pre>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
