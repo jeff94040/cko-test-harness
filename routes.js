@@ -13,7 +13,12 @@ router.get('/', (req, res) => {
 
 // Render Frames page
 router.get('/frames', (req, res) => {
-  res.render('frames');
+  res.render('frames', {key: process.env.CKO_API_PUBLIC});
+});
+
+// HPP result redirect
+router.get('/hpp-result/:result', (req, res) => {
+  res.render('hpp-result', {result: req.params.result});
 });
 
 // Webhook notification listener

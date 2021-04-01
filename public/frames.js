@@ -1,7 +1,7 @@
     var payButton = document.getElementById("pay-button");
 
-    // Set public key
-    Frames.init("pk_test_32c0d57c-2b69-4d68-9cf5-dbcb10809ec5");
+    // Assign public key passed from server
+    Frames.init(key);
 
     // Event listener: card validation changed
     Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, (event) => {
