@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 
 const router = express.Router();
 
-const keys = JSON.parse(fs.readFileSync('./keys.json'));
 const webhookNotifications = './webhook-notifications.log';
 
 // Render CKO Test Harness homepage
@@ -43,11 +42,11 @@ router.post('/fetch-api-request', async (req, res) => {
 
   let key;
   if(req.body.path === '/payment-links' || req.body.path === '/hosted-payments')
-    key = keys.hpp.secret;
+    key = process.env.CKO_HPP_LINKS_SECRET;
   else if(req.body.path === '/tokens')
-    key = keys.hpp.public;
+    key = process.env.CKO_HPP_LINKS_PUBLIC;
   else
-    key = keys.frames.secret;
+    key = process.env.CKO_API_SECRET;
 
   const data = {
     method: req.body.verb,

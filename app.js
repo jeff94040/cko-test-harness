@@ -2,7 +2,7 @@ import express from 'express';
 import {router} from './routes.js';
 
 const app = express();
-const port = 3001;
+const port = process.env.CKO_PORT;
 
 // Body parser middleware
 app.use(express.json());
