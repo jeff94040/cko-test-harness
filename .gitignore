@@ -1,0 +1,8 @@
+# dependencies
+node_modules/
+
+# authentication keys
+keys.json
+
+# webhook notification log
+webhook-notifications.log
