@@ -57,6 +57,14 @@ const data = {
     'verb': '',
     'path': '',
   },
+  'update-customer-details': {
+    'verb': 'PATCH',
+    'path': '/customers/{id}',
+    'body': {
+      'email': 'jdoe@gmail.com',
+      'name': 'John Doe'
+    }
+  },
   'retrieve-event-types': {
     'verb': 'GET',
     'path': '/event-types'

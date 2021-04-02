@@ -67,7 +67,7 @@ router.post('/fetch-api-request', async (req, res) => {
     const response = await fetch(`${req.body.domain}${req.body.path}`, data);
 
     // Parse and handle reply from CKO REST API
-    if (response.headers.get('Content-Length') === '0'){
+    if (response.size === 0){
       res.send({status: response.status, statusText: response.statusText, body: {}});
     }
     else{
