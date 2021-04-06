@@ -30,9 +30,10 @@ You must configure the following secret and public keys within the user-level en
 
 ## Usage
 
-Open a terminal, create and ```cd``` to the application root directory, then run:
+Open a terminal, ```cd``` to the application's parent directory, then run:
 
 ```console
 $ git clone https://github.com/jeff94040/cko-test-harness.git
+$ cd cko-test-harness/
 $ node app
 ```
