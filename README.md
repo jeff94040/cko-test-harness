@@ -16,6 +16,7 @@ cko-test-harness is a web implementation of the Checkout.com Unified API. It all
 
 ## Prerequisites
 
+* Git
 * Node.js v15.12.0 LTS
 
 ## Setup
@@ -29,8 +30,9 @@ You must configure the following secret and public keys within the user-level en
 
 ## Usage
 
-Open a terminal, ```cd``` to the application root directory, then run:
+Open a terminal, create and ```cd``` to the application root directory, then run:
 
 ```console
+$ git clone https://github.com/jeff94040/cko-test-harness.git
 $ node app
 ```
