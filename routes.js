@@ -67,12 +67,12 @@ router.post('/fetch-api-request', async (req, res) => {
     const response = await fetch(`${req.body.domain}${req.body.path}`, data);
 
     // Parse and handle reply from CKO REST API
-    if (response.size === 0){
-      res.send({status: response.status, statusText: response.statusText, body: {}});
+    if (response.headers.get('content-type') && response.headers.get('content-type').includes('application/json')){
+      const body = await response.json();
+      res.send({status: response.status, statusText: response.statusText, body: body});        
     }
     else{
-      const body = await response.json();
-      res.send({status: response.status, statusText: response.statusText, body: body});     
+      res.send({status: response.status, statusText: response.statusText, body: {}});   
     }
   }
   catch (error) {
