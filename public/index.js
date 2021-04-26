@@ -1,54 +1,101 @@
 const action = document.querySelector('#action');
-const verb = document.querySelector('#verb');
-const domain = document.querySelector('#domain');
-const path = document.querySelector('#path');
-const reqBodyElem = document.querySelector('#request-body');
-const resBodyElem = document.querySelector('#response-body');
-const resStatusElem = document.querySelector('#response-status');
 const button = document.querySelector('button');
+const button_submit_span = button.querySelector('#submit');
+const button_processing_span = button.querySelector('#processing');
+const request_visibility = document.querySelector('#request-visibility');
+const request_verb = document.querySelector('#request-verb');
+const request_origin = document.querySelector('#request-origin');
+const request_path = document.querySelector('#request-path');
+const request_body = document.querySelector('#request-body');
+const response_visibility = document.querySelector('#response-visibility');
+const response_header_ul = document.querySelector('#response-header-ul');
+const response_status_li = document.querySelector('#response-status-li');
+const response_body = document.querySelector('#response-body');
 
 action.addEventListener('change', () => {
 
-  if(action.value === 'webhook-notifications'){
+  response_visibility.className = 'visually-hidden';
+
+  if(action.value === 'select-your-action'){
+    button.disabled = true;
+    request_visibility.className = 'visually-hidden';
+  }
+  else if(action.value === 'webhook-notifications'){
     window.location = 'webhook-notifications';
     return;
   }
-  if(action.value === 'frames-token'){
+  else if(action.value === 'frames-token'){
     window.location = 'frames';
     return;
   }
+  else{
+    button.disabled = false;
+    request_visibility.className = 'mb-3';
 
-  verb.value = data[action.value].verb;
-  action.value === '' ? domain.value = '' : domain.value = 'https://api.sandbox.checkout.com';
-  path.value = data[action.value].path;
-  !data[action.value].body ? reqBodyElem.innerHTML = '' : reqBodyElem.innerHTML = JSON.stringify(data[action.value].body, null, 2);
-  resBodyElem.innerHTML = '';
-  resStatusElem.innerHTML = '';
+    request_verb.innerHTML = data[action.value].verb;
+    request_path.value = data[action.value].path;
+    !data[action.value].body ? request_body.innerHTML = '' : request_body.innerHTML = JSON.stringify(data[action.value].body, null, 2);
+  }
+
 });
 
 button.addEventListener('click', async () => {
+
+  // disable button and change contents to processing spinner
+  button.disabled = true;
+  button_submit_span.className = 'visually-hidden';
+  button_processing_span.removeAttribute('class');
 
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({'verb': verb.value, 'domain': domain.value, 'path': path.value, 'body': reqBodyElem.value.length > 0 ? JSON.parse(reqBodyElem.value) : ''})
+    body: JSON.stringify({
+      'verb': request_verb.innerHTML, 
+      'domain': request_origin.innerHTML, 
+      'path': request_path.value, 
+      'body': request_body.value.length > 0 ? JSON.parse(request_body.value) : ''
+    })
   }
 
   try {
-    const res = await fetch('/fetch-api-request', options);
-    const resJson = await res.json();
-    resBodyElem.innerHTML = JSON.stringify(resJson.body, null, 2);
-    let link = '';
-    if (resJson.body['_links']?.redirect?.href)
-      link = ` - <a href=${resJson.body['_links']?.redirect?.href}>Proceed with browser redirect...</a>`;
-    resStatusElem.innerHTML = `${resJson.status} - ${resJson.statusText}${link}`; 
+    const fetch_obj = await fetch('/fetch-api-request', options);
+    const fetch_response = await fetch_obj.json();
+    response_body.innerHTML = JSON.stringify(fetch_response.body, null, 2);
+    response_status_li.innerHTML = `${fetch_response.status} ${fetch_response.statusText}`;
+    response_status_li.className = `list-group-item list-group-item-${fetch_response.status < 300 ? 'success' : 'danger'}`;
+    
+    document.querySelector('#response-redirect-li')?.remove();
+
+    // If redirect href is returned
+    const redirect_href = fetch_response.body['_links']?.redirect?.href;
+    if (redirect_href){
+      const a = document.createElement('a');
+      a.href = redirect_href;
+      a.className = 'link-primary';
+      a.innerHTML = 'Proceed with browser redirect';
+
+      const li = document.createElement('li');
+      li.className = 'list-group-item list-group-item-secondary';
+      li.id = 'response-redirect-li'
+      li.appendChild(a);
+
+      response_header_ul.appendChild(li);
+
+    }
     hljs.highlightAll();
   }
   catch (error){
     console.log(error);
   }
+  // Make response visible
+  response_visibility.removeAttribute('class');
+
+  // Enable button and change contents to Submit
+  button.disabled = false;
+  button_submit_span.removeAttribute('class');
+  button_processing_span.className = 'visually-hidden';
 
 });
 
