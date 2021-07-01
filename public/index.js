@@ -148,6 +148,22 @@ const data = {
       }
     }
   },
+  'request-payout': {
+    'verb': 'POST',
+    'path': '/payments',
+    'body': {
+      'destination': {
+        'type': 'card',
+        'number': '4242424242424242',
+        'expiry_month': '12',
+        'expiry_year': '2030',
+        'first_name': 'John',
+        'last_name': 'Doe',
+      },
+      'amount': '0',
+      'currency': 'EUR'
+    }
+  },
   'get-payment-details': {
     'verb': 'GET',
     'path': '/payments/{id}'
