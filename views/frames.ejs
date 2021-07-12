@@ -11,13 +11,11 @@
   <!-- add frames script -->
   <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
   <div class="one-liner">
-    <div class="card-frame">
-      <!-- form will be added here -->
-    </div>
+    <div class="card-frame"><!-- form will be added here --></div>
     <!-- add submit button -->
     <button id="pay-button" disabled>Tokenize</button>
   </div>
-  <p class="success-payment-message"></p> 
+  <div style="font-family: monospace; white-space: nowrap;" id="frames-events-div"></div> 
   <script>const key = '<%=key%>'</script>
   <script src="frames.js"></script>
 </body>

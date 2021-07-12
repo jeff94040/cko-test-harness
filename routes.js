@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import fetch from 'node-fetch'; 
+import MongoClient from 'mongodb';
 
 const router = express.Router();
 
@@ -39,6 +40,12 @@ router.get('/webhook-notifications', (req, res) => {
   const events = fs.readFileSync(webhookNotifications, {encoding: 'utf-8'});
 
   res.render('webhook-notifications', {events: events});
+
+});
+
+router.get('/mongodb', async (req, res) => {
+  
+  res.render('mongodb');
 
 });
 
