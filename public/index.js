@@ -148,6 +148,28 @@ const data = {
       }
     }
   },
+  'request-3ds-payment': {
+    'verb': 'POST',
+    'path': '/payments',
+    'body': {
+      'amount': '1000',
+      'billing_descriptor': {
+        'name': 'Product Name XYZ',
+        'city': 'Mountain View'
+      },
+      'currency': 'USD',
+      'source': {
+        'type': 'card',
+        'number': '4242424242424242',
+        'expiry_month': '12',
+        'expiry_year': '2030'
+      },
+      '3ds': {
+        'enabled': 'true',
+        'attempt_n3d': 'true'
+      }
+    }
+  },
   'request-payout': {
     'verb': 'POST',
     'path': '/payments',
@@ -160,7 +182,20 @@ const data = {
         'first_name': 'John',
         'last_name': 'Doe',
       },
-      'amount': '0',
+      'processing': {
+        'senderInformation': {
+          'reference': Math.floor(Math.random() * 1000000000),
+          'accountNumber': Math.floor(Math.random() * 1000000000),
+          'firstName': 'John',
+          'lastName': 'Doe',
+          'address': '123 Test St',
+          'city': 'New York',
+          'state': 'NY',
+          'country': 'US',
+          'sourceOfFunds': 'Debit'
+        }
+      },
+      'amount': '1000',
       'currency': 'EUR'
     }
   },
