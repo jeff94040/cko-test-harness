@@ -5,14 +5,28 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// const webhookNotifications = './webhook-notifications.log';
-
-const webhookSchema = new mongoose.Schema({any: {}});
-const Webhook = mongoose.model('Webhook', webhookSchema);
-
+// database credentials
 const mongo_db_name = process.env.MONGO_DB_NAME;
 const mongo_db_user = process.env.MONGO_DB_USER;
 const mongo_db_password = process.env.MONGO_DB_PASSWORD;
+
+// database schema
+const webhookSchema = new mongoose.Schema({any: {}});
+
+// database model
+const Webhook = mongoose.model('Webhook', webhookSchema);
+
+// initialize database connection
+mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@cluster0.3gcos.mongodb.net/${mongo_db_name}?authSource=admin&replicaSet=atlas-h15pmt-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
+
+// connection object
+const db = mongoose.connection;
+
+// fires on database connection error
+db.on('error', console.error.bind(console, 'connection error:'));
+
+// fires on successful database connection
+db.once('open', function() { console.log('we are connected!!') });
 
 // Render CKO Test Harness homepage
 router.get('/', (req, res) => {
@@ -33,48 +47,36 @@ router.get('/hpp-result/:result', (req, res) => {
 router.post('/webhook-listener', (req, res) => {
 
   console.log('received webhook...');
-  console.log(req.body);
 
-  mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@cluster0.3gcos.mongodb.net/${mongo_db_name}?authSource=admin&replicaSet=atlas-h15pmt-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
+  const webhook = new Webhook({any: req.body});
 
-  const db = mongoose.connection;
-  db.on('error', console.error.bind(console, 'connection error:'));
-  db.once('open', function() {
-    console.log('connected to database...');
-
-    const webhook = new Webhook({any: req.body});
-
-    webhook.save(function (err, webhook) {
-      if(err) {
-        res.status(500).end();
-        return console.error(err);
-      }
-      console.log('wrote webhook to database...');
-      res.status(200).end();
-    });
-
+  webhook.save(function (err, webhook) {
+    if(err) {
+      res.status(500).end();
+      return console.error(err);
+    }
+    console.log('wrote webhook to database...');
+    res.status(200).end();
   });
+
+});
+
+router.get('/webhooks', (req, res) => {
+
+  res.render('webhooks');
+
 });
 
 // Return webhook notifications
-router.get('/webhook-notifications', (req, res) => {
+router.post('/fetch-webhooks', (req, res) => {
+
+  console.log('request received @ /fetch-webhooks');
   
-  // const events = fs.readFileSync(webhookNotifications, {encoding: 'utf-8'});
-  mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@cluster0.3gcos.mongodb.net/${mongo_db_name}?authSource=admin&replicaSet=atlas-h15pmt-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
-
-  const db = mongoose.connection;
-
-  db.on('error', console.error.bind(console, 'connection error:'));
-
-  db.once('open', function() {
-    console.log('we are connected!!');
-
-    Webhook.find(function (err, webhooks) {
-      if (err) return console.error(err);
-      console.log(webhooks);
-      res.status(200).json(webhooks);
-    });
-
+  Webhook.find(function (err, webhooks) {
+    if (err) return console.error(err);
+    // console.log(webhooks);
+    console.log('sending response from /fetch-webhooks');
+    res.status(200).json(webhooks);
   });
 
 });

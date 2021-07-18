@@ -20,8 +20,8 @@ action.addEventListener('change', () => {
     button.disabled = true;
     request_visibility.className = 'visually-hidden';
   }
-  else if(action.value === 'webhook-notifications'){
-    window.location = 'webhook-notifications';
+  else if(action.value === 'webhooks'){
+    window.location = 'webhooks';
     return;
   }
   else if(action.value === 'frames-token'){
