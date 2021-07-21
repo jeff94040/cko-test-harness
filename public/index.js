@@ -34,7 +34,7 @@ action.addEventListener('change', () => {
 
     request_verb.innerHTML = data[action.value].verb;
     request_path.value = data[action.value].path;
-    !data[action.value].body ? request_body.innerHTML = '' : request_body.innerHTML = JSON.stringify(data[action.value].body, null, 2);
+    !data[action.value].body ? request_body.value = '' : request_body.value = JSON.stringify(data[action.value].body, null, 2);
   }
 
 });

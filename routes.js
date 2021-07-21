@@ -1,5 +1,4 @@
 import express from 'express';
-import fs from 'fs';
 import fetch from 'node-fetch'; 
 import mongoose from 'mongoose';
 
@@ -35,7 +34,7 @@ router.get('/', (req, res) => {
 
 // Render Frames page
 router.get('/frames', (req, res) => {
-  res.render('frames', {key: process.env.CKO_API_PUBLIC});
+  res.render('frames', {key: process.env.CKO_PUBLIC_KEY});
 });
 
 // HPP result redirect
@@ -84,13 +83,10 @@ router.post('/fetch-webhooks', (req, res) => {
 // REST API listens for async fetch() requests from client browser & invokes CKO API
 router.post('/fetch-api-request', async (req, res) => {
 
-  let key;
-  if(req.body.path === '/payment-links' || req.body.path === '/hosted-payments')
-    key = process.env.CKO_HPP_LINKS_SECRET;
-  else if(req.body.path === '/tokens')
-    key = process.env.CKO_HPP_LINKS_PUBLIC;
-  else
-    key = process.env.CKO_API_SECRET;
+  // default key to sk, reassign to pk for /tokens endpoint only
+  let key = process.env.CKO_SECRET_KEY;
+  if(req.body.path === '/tokens')
+    key = process.env.CKO_PUBLIC_KEY;
 
   const data = {
     method: req.body.verb,
