@@ -1,35 +1,47 @@
 const action = document.querySelector('#action');
-const button = document.querySelector('button');
-const button_submit_span = button.querySelector('#submit');
-const button_processing_span = button.querySelector('#processing');
+const submit_button = document.querySelector('#submit-button');
+const button_submit_span = submit_button.querySelector('#submit');
+const button_processing_span = submit_button.querySelector('#processing');
 const request_visibility = document.querySelector('#request-visibility');
 const request_verb = document.querySelector('#request-verb');
 const request_origin = document.querySelector('#request-origin');
 const request_path = document.querySelector('#request-path');
 const request_body = document.querySelector('#request-body');
 const response_visibility = document.querySelector('#response-visibility');
-const response_header_ul = document.querySelector('#response-header-ul');
-const response_status_li = document.querySelector('#response-status-li');
+const response_header = document.querySelector('#response-header');
 const response_body = document.querySelector('#response-body');
+const iframe = document.querySelector('#iframe');
+const modal_iframe = document.querySelector('#modal-iframe');
 
+const usp = new URLSearchParams(window.location.search);
+
+// true when window is iframe
+if (window.document != window.parent.document){
+  if(usp.has('cko-payment-id')){ //HPP
+    window.parent.location.href = `?cko-payment-id=${usp.get('cko-payment-id')}`;
+  }
+  else if(usp.has('cko-session-id')){ //3DS
+    window.parent.location.href = `?cko-session-id=${usp.get('cko-session-id')}`;
+  }
+  else{ //PL
+    window.parent.location.href = '';
+  }
+}
+
+// add event listener to action dropdown menu
 action.addEventListener('change', () => {
 
+  // default response vis to hidden
   response_visibility.className = 'visually-hidden';
 
+  // default submit button to disabled & request vis to hidden
   if(action.value === 'select-your-action'){
-    button.disabled = true;
+    submit_button.disabled = true;
     request_visibility.className = 'visually-hidden';
   }
-  else if(action.value === 'webhooks'){
-    window.location = 'webhooks';
-    return;
-  }
-  else if(action.value === 'frames-token'){
-    window.location = 'frames';
-    return;
-  }
   else{
-    button.disabled = false;
+    // enable submit button, populate & display request msg
+    submit_button.disabled = false;
     request_visibility.className = 'mb-3';
 
     request_verb.innerHTML = data[action.value].verb;
@@ -39,13 +51,14 @@ action.addEventListener('change', () => {
 
 });
 
-button.addEventListener('click', async () => {
+submit_button.addEventListener('click', async () => {
 
   // disable button and change contents to processing spinner
-  button.disabled = true;
+  submit_button.disabled = true;
   button_submit_span.className = 'visually-hidden';
   button_processing_span.removeAttribute('class');
 
+  // build Fetch API options & request
   const options = {
     method: 'POST',
     headers: {
@@ -60,29 +73,60 @@ button.addEventListener('click', async () => {
   }
 
   try {
+    // submit Fetch request
     const fetch_obj = await fetch('/fetch-api-request', options);
     const fetch_response = await fetch_obj.json();
-    response_body.innerHTML = JSON.stringify(fetch_response.body, null, 2);
-    response_status_li.innerHTML = `${fetch_response.status} ${fetch_response.statusText}`;
-    response_status_li.className = `list-group-item list-group-item-${fetch_response.status < 300 ? 'success' : 'danger'}`;
+    // populate response details
+    response_body.value = JSON.stringify(fetch_response.body, null, 2);
+    response_header.innerHTML = `Response Message (${fetch_response.status} - ${fetch_response.statusText})`;
     
-    document.querySelector('#response-redirect-li')?.remove();
-
-    // If redirect href is returned
+    // If _links.redirect.href is returned
     const redirect_href = fetch_response.body['_links']?.redirect?.href;
     if (redirect_href){
-      const a = document.createElement('a');
-      a.href = redirect_href;
-      a.className = 'link-primary';
-      a.innerHTML = 'Proceed with browser redirect';
 
-      const li = document.createElement('li');
-      li.className = 'list-group-item list-group-item-secondary';
-      li.id = 'response-redirect-li'
-      li.appendChild(a);
+      // redirect button
+      const redirect_button = document.createElement('button');
+      redirect_button.className = 'btn btn-primary btn-sm mt-2';
+      redirect_button.type = 'button';
+      redirect_button.innerHTML = 'redirect';
 
-      response_header_ul.appendChild(li);
+      // redirect button event listener
+      redirect_button.addEventListener('click', () => {
+        window.location.href = redirect_href;
+      });
 
+      // iframe button
+      const iframe_button = document.createElement('button');
+      iframe_button.formTarget = 'iframe';
+      iframe_button.className = 'btn btn-primary btn-sm ms-2 mt-2';
+      iframe_button.type = 'button';
+      iframe_button.innerHTML = 'iframe';
+
+      // iframe button event listener
+      iframe_button.addEventListener('click', () => {
+        iframe.setAttribute('src', redirect_href);
+        iframe.width = '350px';
+        iframe.height = '386px';
+      });
+
+      // modal button
+      const modal_button = document.createElement('button');
+      modal_button.className = 'btn btn-primary btn-sm ms-2 mt-2';
+      modal_button.type = 'button';
+      modal_button.innerHTML = 'modal';
+      modal_button.setAttribute('data-bs-toggle', 'modal');
+      modal_button.setAttribute('data-bs-target', '#exampleModal');
+
+      // modal button event listener
+      modal_button.addEventListener('click', () => {
+        modal_iframe.setAttribute('src', redirect_href);
+        modal_iframe.width = '350px';
+        modal_iframe.height = '386px';
+      });
+
+      response_visibility.appendChild(redirect_button);
+      response_visibility.appendChild(iframe_button);
+      response_visibility.appendChild(modal_button); 
     }
     hljs.highlightAll();
   }
@@ -93,7 +137,7 @@ button.addEventListener('click', async () => {
   response_visibility.removeAttribute('class');
 
   // Enable button and change contents to Submit
-  button.disabled = false;
+  submit_button.disabled = false;
   button_submit_span.removeAttribute('class');
   button_processing_span.className = 'visually-hidden';
 
@@ -143,9 +187,11 @@ const data = {
       },
       'currency': 'USD',
       'source': {
-        'type': 'token',
-        'token': ''
-      }
+        'type': 'card',
+        'number': '4242424242424242',
+        'expiry_month': '12',
+        'expiry_year': '2030'
+      },
     }
   },
   'request-3ds-payment': {
@@ -201,7 +247,7 @@ const data = {
   },
   'get-payment-details': {
     'verb': 'GET',
-    'path': '/payments/{id}'
+    'path': usp.has('cko-payment-id') ? `/payments/${usp.get('cko-payment-id')}` : (usp.has('cko-session-id') ? `/payments/${usp.get('cko-session-id')}` : '/payments/{id}')
   },
   'get-payment-actions': {
     'verb': 'GET',
@@ -250,8 +296,9 @@ const data = {
         'address': {
           'country': 'US'
         }
-      }
-    }    
+      },
+      'return_url': 'https://cko.jeff94040.ddns.net'
+    }
   },
   'hpp-session': {
     'verb': 'POST',
@@ -264,9 +311,9 @@ const data = {
           'country': 'US'
           }
       },
-    'success_url': 'https://cko.jeff94040.ddns.net/hpp-result/success',
-    'failure_url': 'https://cko.jeff94040.ddns.net/hpp-result/failure',
-    'cancel_url': 'https://cko.jeff94040.ddns.net/hpp-result/cancel'      
+    'success_url': 'https://cko.jeff94040.ddns.net',
+    'failure_url': 'https://cko.jeff94040.ddns.net',
+    'cancel_url': 'https://cko.jeff94040.ddns.net'      
     }
   },
   'retrieve-webhooks': {

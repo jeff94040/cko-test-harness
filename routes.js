@@ -10,10 +10,10 @@ const mongo_db_user = process.env.MONGO_DB_USER;
 const mongo_db_password = process.env.MONGO_DB_PASSWORD;
 
 // database schema
-const webhookSchema = new mongoose.Schema({any: {}});
+const eventSchema = new mongoose.Schema({any: {}});
 
 // database model
-const Webhook = mongoose.model('Webhook', webhookSchema);
+const Event = mongoose.model('Event', eventSchema);
 
 // initialize database connection
 mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@cluster0.3gcos.mongodb.net/${mongo_db_name}?authSource=admin&replicaSet=atlas-h15pmt-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
@@ -37,45 +37,40 @@ router.get('/frames', (req, res) => {
   res.render('frames', {key: process.env.CKO_PUBLIC_KEY});
 });
 
-// HPP result redirect
-router.get('/hpp-result/:result', (req, res) => {
-  res.render('hpp-result', {result: req.params.result});
-});
+// Event notification listener
+router.post('/event-listener', (req, res) => {
 
-// Webhook notification listener
-router.post('/webhook-listener', (req, res) => {
+  console.log('received event...');
 
-  console.log('received webhook...');
+  const event = new Event({any: req.body});
 
-  const webhook = new Webhook({any: req.body});
-
-  webhook.save(function (err, webhook) {
+  event.save(function (err, event) {
     if(err) {
       res.status(500).end();
       return console.error(err);
     }
-    console.log('wrote webhook to database...');
+    console.log('wrote event to database...');
     res.status(200).end();
   });
 
 });
 
-router.get('/webhooks', (req, res) => {
+router.get('/events', (req, res) => {
 
-  res.render('webhooks');
+  res.render('events');
 
 });
 
-// Return webhook notifications
-router.post('/fetch-webhooks', (req, res) => {
+// Return events
+router.post('/fetch-events', (req, res) => {
 
-  console.log('request received @ /fetch-webhooks');
+  console.log('request received @ /fetch-events');
   
-  Webhook.find(function (err, webhooks) {
+  Event.find(function (err, events) {
     if (err) return console.error(err);
-    // console.log(webhooks);
-    console.log('sending response from /fetch-webhooks');
-    res.status(200).json(webhooks);
+    // console.log(events);
+    console.log('sending response from /fetch-events');
+    res.status(200).json(events);
   });
 
 });

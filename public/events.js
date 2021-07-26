@@ -1,6 +1,6 @@
-fetch_webhooks();
+fetch_events();
 
-async function fetch_webhooks() {
+async function fetch_events() {
 
   const options = {
     method: 'POST',
@@ -14,7 +14,7 @@ async function fetch_webhooks() {
   }
 
   try {
-    const fetch_obj = await fetch('/fetch-webhooks', options);
+    const fetch_obj = await fetch('/fetch-events', options);
     const fetch_response = await fetch_obj.json();
 
     // console.log(fetch_response);
