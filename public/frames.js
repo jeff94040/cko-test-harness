@@ -66,5 +66,5 @@ payButton.addEventListener('click', (event) => {
 
 function populate_frames_events_div(log_text){
   log_counter++;
-  frames_events_div.innerHTML = `<br>${log_counter}) ${log_text}<br>${frames_events_div.innerHTML}`;
+  frames_events_div.innerHTML = `${log_counter}) ${log_text}<br>${frames_events_div.innerHTML}`;
 }

@@ -13,12 +13,26 @@
   <!-- navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-secondary mb-3">
     <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-          <a class="nav-link" href="/">UPAPI</a>
-          <a class="nav-link" href="/frames">Frames</a>
-          <a class="nav-link" href="/events">Events</a>
-          <a class="nav-link" href="#">Keys</a>
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/">UPAPI</a>
+            </li>
+              <a class="nav-link" href="/frames">Frames</a>
+            <li class="nav-item">
+              <a class="nav-link" href="/events">Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pan-generator">PAN Generator</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Keys</a>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -26,20 +40,22 @@
 
   <div class="container-fluid">
 
-  <!-- contains action dropdown & button -->
+  <!-- action dropdown & submit button -->
   <div class="d-inline-flex mb-3">
     <div class="input-group">
       <select class="form-select" id="action">
         <option value="select-your-action">Select your action:</option>
         <optgroup label="Payments">
           <option value="request-payment">Request Payment</option>
-          <option value="request-3ds-payment">Request 3DS Payment</option>
           <option value="request-payout">Request Payout</option>
           <option value="get-payment-details">Get Payment Details</option>
           <option value="get-payment-actions">Get Payment Actions</option>
           <option value="capture-payment">Capture Payment</option>
           <option value="refund-payment">Refund Payment</option>
           <option value="void-payment">Void Payment</option>
+        </optgroup>
+        <optgroup label="3DS">
+          <option value="request-3ds-payment">3DS - Request Payment</option>
         </optgroup>
         <optgroup label="Hosted Payment Page">
           <option value="hpp-session">Get HPP Session</option>
@@ -73,8 +89,8 @@
         </optgroup>
       </select>
       <button id="submit-button" class="btn btn-secondary" type="button" disabled>
-        <span id="submit">Submit</span>
-        <span id="processing" class="visually-hidden">
+        <span id="submit-button-text">Submit</span>
+        <span id="submit-button-processing" class="visually-hidden">
           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           <span>Processing...</span>
         </span>
@@ -82,9 +98,10 @@
     </div>
   </div>
 
+  <!-- wraps endpoint & request body -->
   <div id="request-visibility" class="visually-hidden">
     
-    <!-- contains request verb, domain, & path -->
+    <!-- endpoint input group -->
     <div class="input-group mb-3">
       <span class="input-group-text" id="request-verb"></span>
       <span class="input-group-text" id="request-origin">https://api.sandbox.checkout.com</span>
@@ -92,13 +109,13 @@
     </div>
 
     <div class="row">
-      <div class="col no-gutters">
-        <!-- contains request body -->
+      <!-- request body -->
+      <div class="col">
         <h6>Request Message</h6>
         <textarea class="form-control" id="request-body" rows="15" style="font-size: x-small;"></textarea>
       </div>
-      <div class="col no-gutters">
-        <!-- contains response status, message, & body -->
+      <!-- response status, msg, & body -->
+      <div class="col">
         <div id="response-visibility" class="visually-hidden">
           <h6 id="response-header"></h6>
           <textarea class="form-control" id="response-body" rows="15" style="font-size: x-small;"></textarea>

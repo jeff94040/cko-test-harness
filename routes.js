@@ -61,6 +61,10 @@ router.get('/events', (req, res) => {
 
 });
 
+router.get('/pan-generator', (req, res) => {
+  res.render('pan-generator');
+});
+
 // Return events
 router.post('/fetch-events', (req, res) => {
 

@@ -1,7 +1,7 @@
 const action = document.querySelector('#action');
 const submit_button = document.querySelector('#submit-button');
-const button_submit_span = submit_button.querySelector('#submit');
-const button_processing_span = submit_button.querySelector('#processing');
+const submit_button_text = submit_button.querySelector('#submit-button-text');
+const submit_button_processing = submit_button.querySelector('#submit-button-processing');
 const request_visibility = document.querySelector('#request-visibility');
 const request_verb = document.querySelector('#request-verb');
 const request_origin = document.querySelector('#request-origin');
@@ -14,134 +14,6 @@ const iframe = document.querySelector('#iframe');
 const modal_iframe = document.querySelector('#modal-iframe');
 
 const usp = new URLSearchParams(window.location.search);
-
-// true when window is iframe
-if (window.document != window.parent.document){
-  if(usp.has('cko-payment-id')){ //HPP
-    window.parent.location.href = `?cko-payment-id=${usp.get('cko-payment-id')}`;
-  }
-  else if(usp.has('cko-session-id')){ //3DS
-    window.parent.location.href = `?cko-session-id=${usp.get('cko-session-id')}`;
-  }
-  else{ //PL
-    window.parent.location.href = '';
-  }
-}
-
-// add event listener to action dropdown menu
-action.addEventListener('change', () => {
-
-  // default response vis to hidden
-  response_visibility.className = 'visually-hidden';
-
-  // default submit button to disabled & request vis to hidden
-  if(action.value === 'select-your-action'){
-    submit_button.disabled = true;
-    request_visibility.className = 'visually-hidden';
-  }
-  else{
-    // enable submit button, populate & display request msg
-    submit_button.disabled = false;
-    request_visibility.className = 'mb-3';
-
-    request_verb.innerHTML = data[action.value].verb;
-    request_path.value = data[action.value].path;
-    !data[action.value].body ? request_body.value = '' : request_body.value = JSON.stringify(data[action.value].body, null, 2);
-  }
-
-});
-
-submit_button.addEventListener('click', async () => {
-
-  // disable button and change contents to processing spinner
-  submit_button.disabled = true;
-  button_submit_span.className = 'visually-hidden';
-  button_processing_span.removeAttribute('class');
-
-  // build Fetch API options & request
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      'verb': request_verb.innerHTML, 
-      'domain': request_origin.innerHTML, 
-      'path': request_path.value, 
-      'body': request_body.value.length > 0 ? JSON.parse(request_body.value) : ''
-    })
-  }
-
-  try {
-    // submit Fetch request
-    const fetch_obj = await fetch('/fetch-api-request', options);
-    const fetch_response = await fetch_obj.json();
-    // populate response details
-    response_body.value = JSON.stringify(fetch_response.body, null, 2);
-    response_header.innerHTML = `Response Message (${fetch_response.status} - ${fetch_response.statusText})`;
-    
-    // If _links.redirect.href is returned
-    const redirect_href = fetch_response.body['_links']?.redirect?.href;
-    if (redirect_href){
-
-      // redirect button
-      const redirect_button = document.createElement('button');
-      redirect_button.className = 'btn btn-primary btn-sm mt-2';
-      redirect_button.type = 'button';
-      redirect_button.innerHTML = 'redirect';
-
-      // redirect button event listener
-      redirect_button.addEventListener('click', () => {
-        window.location.href = redirect_href;
-      });
-
-      // iframe button
-      const iframe_button = document.createElement('button');
-      iframe_button.formTarget = 'iframe';
-      iframe_button.className = 'btn btn-primary btn-sm ms-2 mt-2';
-      iframe_button.type = 'button';
-      iframe_button.innerHTML = 'iframe';
-
-      // iframe button event listener
-      iframe_button.addEventListener('click', () => {
-        iframe.setAttribute('src', redirect_href);
-        iframe.width = '350px';
-        iframe.height = '386px';
-      });
-
-      // modal button
-      const modal_button = document.createElement('button');
-      modal_button.className = 'btn btn-primary btn-sm ms-2 mt-2';
-      modal_button.type = 'button';
-      modal_button.innerHTML = 'modal';
-      modal_button.setAttribute('data-bs-toggle', 'modal');
-      modal_button.setAttribute('data-bs-target', '#exampleModal');
-
-      // modal button event listener
-      modal_button.addEventListener('click', () => {
-        modal_iframe.setAttribute('src', redirect_href);
-        modal_iframe.width = '350px';
-        modal_iframe.height = '386px';
-      });
-
-      response_visibility.appendChild(redirect_button);
-      response_visibility.appendChild(iframe_button);
-      response_visibility.appendChild(modal_button); 
-    }
-    hljs.highlightAll();
-  }
-  catch (error){
-    console.log(error);
-  }
-  // Make response visible
-  response_visibility.removeAttribute('class');
-
-  // Enable button and change contents to Submit
-  submit_button.disabled = false;
-  button_submit_span.removeAttribute('class');
-  button_processing_span.className = 'visually-hidden';
-
-});
 
 const data = {
   '': {
@@ -399,3 +271,136 @@ const data = {
     'path': '/webhooks/{id}',
   }
 }
+
+// true when window is iframe
+if (window.document != window.parent.document){
+  if(usp.has('cko-payment-id')) // HPP
+    window.parent.location.href = `?cko-payment-id=${usp.get('cko-payment-id')}`;
+  else if(usp.has('cko-session-id')) // 3DS
+    window.parent.location.href = `?cko-session-id=${usp.get('cko-session-id')}`;
+  else // PL
+    window.parent.location.href = '';
+}
+else{
+  if(usp.has('cko-payment-id') || usp.has('cko-session-id')){
+    action.value = 'get-payment-details';
+    action_menu_toggled();
+  }
+}
+
+// add event listener to action dropdown menu
+action.addEventListener('change', action_menu_toggled);
+
+function action_menu_toggled(){
+
+  // hide response body when action menu changed
+  response_visibility.className = 'visually-hidden';
+
+  // if no action selected, disable submit button & hide request
+  if(action.value === 'select-your-action'){
+    submit_button.disabled = true;
+    request_visibility.className = 'visually-hidden';
+  }
+  else{
+    // enable submit button, populate & display request msg
+    submit_button.disabled = false;
+    request_visibility.className = 'mb-3';
+
+    request_verb.innerHTML = data[action.value].verb;
+    request_path.value = data[action.value].path;
+    !data[action.value].body ? request_body.value = '' : request_body.value = JSON.stringify(data[action.value].body, null, 2);
+  }
+}
+
+submit_button.addEventListener('click', async () => {
+
+  // disable button and change contents to processing spinner
+  submit_button.disabled = true;
+  submit_button_text.className = 'visually-hidden';
+  submit_button_processing.removeAttribute('class');
+
+  // build Fetch API options & request
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      'verb': request_verb.innerHTML, 
+      'domain': request_origin.innerHTML, 
+      'path': request_path.value, 
+      'body': request_body.value.length > 0 ? JSON.parse(request_body.value) : ''
+    })
+  }
+
+  try {
+    // submit Fetch request
+    const fetch_obj = await fetch('/fetch-api-request', options);
+    const fetch_response = await fetch_obj.json();
+    // populate response details
+    response_body.value = JSON.stringify(fetch_response.body, null, 2);
+    response_header.innerHTML = `Response Message (${fetch_response.status} - ${fetch_response.statusText})`;
+    
+    // If _links.redirect.href is returned
+    const redirect_href = fetch_response.body['_links']?.redirect?.href;
+    if (redirect_href){
+
+      // redirect button
+      const redirect_button = document.createElement('button');
+      redirect_button.className = 'btn btn-primary btn-sm mt-2';
+      redirect_button.type = 'button';
+      redirect_button.innerHTML = 'redirect';
+
+      // redirect button event listener
+      redirect_button.addEventListener('click', () => {
+        window.location.href = redirect_href;
+      });
+
+      // iframe button
+      const iframe_button = document.createElement('button');
+      iframe_button.formTarget = 'iframe';
+      iframe_button.className = 'btn btn-primary btn-sm ms-2 mt-2';
+      iframe_button.type = 'button';
+      iframe_button.innerHTML = 'iframe';
+
+      // iframe button event listener
+      iframe_button.addEventListener('click', () => {
+        iframe.setAttribute('src', redirect_href);
+        iframe.width = '350px';
+        iframe.height = '386px';
+      });
+
+      // modal button
+      const modal_button = document.createElement('button');
+      modal_button.className = 'btn btn-primary btn-sm ms-2 mt-2';
+      modal_button.type = 'button';
+      modal_button.innerHTML = 'modal';
+      modal_button.setAttribute('data-bs-toggle', 'modal');
+      modal_button.setAttribute('data-bs-target', '#exampleModal');
+
+      // modal button event listener
+      modal_button.addEventListener('click', () => {
+        modal_iframe.setAttribute('src', redirect_href);
+        modal_iframe.width = '350px';
+        modal_iframe.height = '386px';
+      });
+
+      response_visibility.appendChild(redirect_button);
+      response_visibility.appendChild(iframe_button);
+      response_visibility.appendChild(modal_button); 
+    }
+    hljs.highlightAll();
+  }
+  catch (error){
+    console.log(error);
+  }
+  // Make response visible
+  response_visibility.removeAttribute('class');
+
+  // Enable button and change contents to Submit
+  submit_button.disabled = false;
+  submit_button_text.removeAttribute('class');
+  submit_button_processing.className = 'visually-hidden';
+
+});
+

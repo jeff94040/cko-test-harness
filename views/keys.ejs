@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keys</title>
+</head>
+<body>
+  <!--
+    ABC/MBC has concept of 1:1 mapping from Channel : Secret Key & Public Key. Only SK/PK are included in API request Authorization header. No Channel Name or Channel ID.
+
+    TBC:
+    NAS has concept of 1:many mapping from Channel : SK & PK. API request should include Channel ID + (SK or PK in Authorization header)
+
+    Dropdown: (ABC, NAS)
+    If ABC... x3 text boxes: channel name,             channel pk, channel sk
+    If NAS... x4 text boxes: channel name, channel id, channel pk, channel sk
+  -->
+</body>
+</html>
