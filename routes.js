@@ -75,7 +75,7 @@ router.post('/fetch-events', (req, res) => {
     // console.log(events);
     console.log('sending response from /fetch-events');
     res.status(200).json(events);
-  });
+  }).sort({_id: -1});
 
 });
 

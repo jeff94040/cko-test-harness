@@ -389,7 +389,6 @@ submit_button.addEventListener('click', async () => {
       response_visibility.appendChild(iframe_button);
       response_visibility.appendChild(modal_button); 
     }
-    hljs.highlightAll();
   }
   catch (error){
     console.log(error);
