@@ -269,6 +269,10 @@ const data = {
   'remove-webhook': { 
     'verb': 'DELETE',
     'path': '/webhooks/{id}',
+  },
+  'get-fx-rate-quote': {
+    'verb': 'POST',
+    'path': '/forex/rates/{base-currency}/{quote-currency}'
   }
 }
 

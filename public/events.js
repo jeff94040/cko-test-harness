@@ -44,7 +44,7 @@ async function fetch_events() {
       button.setAttribute('data-bs-target', `#collapse${element._id}`);
       button.setAttribute('aria-expanded', 'false');
       button.setAttribute('aria-controls', `collapse${element._id}`);
-      button.innerHTML = `${element.any.created_on} - ${element.any.type}`;
+      button.innerHTML = `${element.any.type} - ${time_ago(element.any.created_on)}`;
 
       const collapse_div = document.createElement('div');
       collapse_div.id = `collapse${element._id}`;
@@ -65,11 +65,32 @@ async function fetch_events() {
 
       accordion.appendChild(accordion_item);
 
-
-      
     });
   }
   catch (error){
     console.log(error);
   }
+}
+
+// calculates time ago & returns readable string, twitter style
+function time_ago(event_time){
+
+  const secs_elapsed = (Date.now() - Date.parse(event_time)) / 1000;
+  var time_elapsed;
+
+  if(secs_elapsed < 60){
+    time_elapsed = `${Math.trunc(secs_elapsed)} seconds ago`;
+  }
+  else if (secs_elapsed < 21600){
+    time_elapsed = `${Math.trunc(secs_elapsed / 60)} minutes ago`;
+  }
+  else if (secs_elapsed < 86400){
+    time_elapsed = `${Math.trunc(secs_elapsed / 3600)} hours ago`;
+  }
+  else{
+    time_elapsed = `${Math.trunc(secs_elapsed / 86400)} days ago`;
+  }
+
+  return time_elapsed;
+
 }
