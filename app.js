@@ -8,6 +8,9 @@ const port = process.env.CKO_PORT;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
 
+// Trust front-facing proxies 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, fc00::/7
+app.set('trust proxy', 'uniquelocal');
+
 // Set default views folder to views
 app.set('views', 'views');
 

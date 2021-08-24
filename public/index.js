@@ -13,6 +13,8 @@ const response_body = document.querySelector('#response-body');
 const iframe = document.querySelector('#iframe');
 const modal_iframe = document.querySelector('#modal-iframe');
 
+var date = new Date();
+
 const usp = new URLSearchParams(window.location.search);
 
 const data = {
@@ -273,6 +275,60 @@ const data = {
   'get-fx-rate-quote': {
     'verb': 'POST',
     'path': '/forex/rates/{base-currency}/{quote-currency}'
+  },
+  'pre-3ds-risk-scan': {
+    'verb': 'POST',
+    'path': '/risk/assessments/pre-authentication',
+    'body': {
+      'date': date.toISOString(),
+      'source': {
+        'type': 'card',
+        'number': '4242424242424242',
+        'expiry_month': '12',
+        'expiry_year': '2030',
+        'name': 'John Doe',
+        'billing_address': {
+          'address_line1': '123 Test St',
+          'address_line2': 'Apt 3',
+          'city': 'San Francisco',
+          'state': 'CA',
+          'zip': '94111',
+          'country': 'US'
+        },
+        'phone': {
+          'country_code': '1',
+          'number': '5551234'
+        }
+      },
+      'customer': {
+        'name': 'John Doe',
+        'email': 'jdoe@test.com'
+      },
+      'payment': {
+        'psp': 'checkout.com',
+        'id': gen_rand_ref(16)
+      },
+      'shipping': {
+        'address': {
+          'address_line1': '123 Test St',
+          'address_line2': 'Apt 3',
+          'city': 'San Francisco',
+          'state': 'CA',
+          'zip': '94111',
+          'country': 'US'
+        }
+      },
+      'reference': `${gen_rand_ref(4)}-${gen_rand_ref(4)}`,
+      'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
+      'amount': `${Math.floor(Math.random() * 10000)}`,
+      'currency': 'USD',
+      'metadata': {
+        'md_1': 'md_1',
+        'md_2': 'md_2',
+        'md_3': 'md_3',
+        'md_4': 'md_4'
+      }
+    }
   }
 }
 
@@ -312,7 +368,19 @@ function action_menu_toggled(){
 
     request_verb.innerHTML = data[action.value].verb;
     request_path.value = data[action.value].path;
-    !data[action.value].body ? request_body.value = '' : request_body.value = JSON.stringify(data[action.value].body, null, 2);
+    //!data[action.value].body ? request_body.value = '' : request_body.value = JSON.stringify(data[action.value].body, null, 2);
+    if(!data[action.value].body){
+      request_body.value = '';
+    }
+    else{
+
+      var action_body = data[action.value].body;
+      action_body.reference = `${gen_rand_ref(4)}-${gen_rand_ref(4)}`;
+      
+      //console.log(action_body);
+
+      request_body.value = JSON.stringify(data[action.value].body, null, 2);
+    }
   }
 }
 
@@ -407,3 +475,11 @@ submit_button.addEventListener('click', async () => {
 
 });
 
+function gen_rand_ref(length){
+  var result           = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < length; i++ )
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  return result;
+}
