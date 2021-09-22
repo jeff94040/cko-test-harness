@@ -7,15 +7,14 @@ Frames.init(
   {
     publicKey: key,
     debug: true,
-    localization: 'EN-GB'
+    localization: 'EN-GB',
+    modes: [Frames.modes.CVV_HIDDEN]
     //style: {...},
     //namespace: '...',
     //frameSelector: '...',
     //captureCVV: false -- this option is a suggested enhancement
   }
 );
-
-// populate_frames_events_div(`List all possible events in Frames.Events object: ${JSON.stringify(Frames.Events)}`);
 
 Frames.addEventHandler(Frames.Events.READY, (event) => {
   populate_frames_events_div(`The event 'Frames.Events.READY' fired!`);

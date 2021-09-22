@@ -1,6 +1,7 @@
 import express from 'express';
 import fetch from 'node-fetch'; 
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
 // fires on successful database connection
-db.once('open', function() { console.log('we are connected!!') });
+db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_user}:*****@cluster0.3.gcos.mongodb.net/${mongo_db_name}`) });
 
 // Render CKO Test Harness homepage
 router.get('/', (req, res) => {
@@ -44,12 +45,25 @@ router.post('/event-listener', (req, res) => {
 
   const event = new Event({any: req.body});
 
+  // Verify authenticity of CKO event notification
+
+  const server_signature = req.header('cko-signature'); // the cko-signature header
+  const stringified_body = JSON.stringify(req.body); // the request body
+  const hmac_password = 'sk_test_6879a658-19a8-4337-80d6-e13c74c85a0b'; // 'Secret key' from Hub. Also set to 'Signature Key' in Dashboard
+
+  const client_signature = crypto.createHmac('sha256', hmac_password)
+    .update(stringified_body)
+    .digest('hex');
+
+  console.log(server_signature === client_signature ? 'signature match' : 'signature mismatch');
+  
   event.save(function (err, event) {
     if(err) {
       res.status(500).end();
       return console.error(err);
     }
     console.log('wrote event to database...');
+    //console.log(JSON.stringify(req.headers));
     res.status(200).end();
   });
 
@@ -59,6 +73,10 @@ router.get('/events', (req, res) => {
 
   res.render('events');
 
+});
+
+router.get('/keys', (req, res) => {
+  res.render('keys');
 });
 
 router.get('/pan-generator', (req, res) => {

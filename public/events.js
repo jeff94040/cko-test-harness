@@ -26,7 +26,7 @@ async function fetch_events() {
 
     fetch_response.forEach(element => {
       const code_elem = document.createElement('code');
-      code_elem.innerText = JSON.stringify(element, null, 2);
+      code_elem.innerText = JSON.stringify(element.any, null, 2);
       const pre_elem = document.createElement('pre');
       pre_elem.appendChild(code_elem);
 
