@@ -12,9 +12,11 @@ const mongo_db_password = process.env.MONGO_DB_PASSWORD;
 
 // database schema
 const eventSchema = new mongoose.Schema({any: {}});
+const keySchema = new mongoose.Schema({structure: String, secret_key: String, public_key: String});
 
 // database model
 const Event = mongoose.model('Event', eventSchema);
+const Key = mongoose.model('Key', keySchema);
 
 // initialize database connection
 mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@cluster0.3gcos.mongodb.net/${mongo_db_name}?authSource=admin&replicaSet=atlas-h15pmt-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
@@ -43,36 +45,42 @@ router.post('/event-listener', (req, res) => {
 
   console.log('received event...');
 
-  const event = new Event({any: req.body});
-
   // Verify authenticity of CKO event notification
 
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
-  const hmac_password = 'sk_test_6879a658-19a8-4337-80d6-e13c74c85a0b'; // 'Secret key' from Hub. Also set to 'Signature Key' in Dashboard
+  const hmac_password = process.env.CKO_WEBHOOK_KEY; // Hub's 'Secret key' or Dashboard's 'Signature Key'
 
   const client_signature = crypto.createHmac('sha256', hmac_password)
     .update(stringified_body)
     .digest('hex');
 
-  console.log(server_signature === client_signature ? 'signature match' : 'signature mismatch');
-  
-  event.save(function (err, event) {
-    if(err) {
-      res.status(500).end();
-      return console.error(err);
-    }
-    console.log('wrote event to database...');
-    //console.log(JSON.stringify(req.headers));
-    res.status(200).end();
-  });
+  // if signature matches, write event to DB
+  if(server_signature === client_signature){
+
+    console.log('signature match...');
+
+    const event = new Event({any: req.body});
+
+    event.save(function (err, event) {
+      if(err) {
+        res.status(500).end();
+        return console.error(err);
+      }
+      console.log('wrote event to database...');
+      //console.log(JSON.stringify(req.headers));
+      res.status(200).end();
+    });
+
+  }
+  else{
+    console.log('signature mismatch...');
+  }
 
 });
 
 router.get('/events', (req, res) => {
-
   res.render('events');
-
 });
 
 router.get('/keys', (req, res) => {
@@ -86,12 +94,12 @@ router.get('/pan-generator', (req, res) => {
 // Return events
 router.post('/fetch-events', (req, res) => {
 
-  console.log('request received @ /fetch-events');
+  // console.log('request received @ /fetch-events');
   
   Event.find(function (err, events) {
     if (err) return console.error(err);
     // console.log(events);
-    console.log('sending response from /fetch-events');
+    // console.log('sending response from /fetch-events');
     res.status(200).json(events);
   }).sort({_id: -1});
 
