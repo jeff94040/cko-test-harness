@@ -44,7 +44,7 @@ async function fetch_events() {
       button.setAttribute('data-bs-target', `#collapse${element._id}`);
       button.setAttribute('aria-expanded', 'false');
       button.setAttribute('aria-controls', `collapse${element._id}`);
-      button.innerHTML = `${element.any.type} - ${time_ago(element.any.created_on)}`;
+      button.innerHTML = `${element.any.body.type} - ${time_ago(element.any.body.created_on)}`;
 
       const collapse_div = document.createElement('div');
       collapse_div.id = `collapse${element._id}`;
@@ -78,13 +78,13 @@ function time_ago(event_time){
   const secs_elapsed = (Date.now() - Date.parse(event_time)) / 1000;
   var time_elapsed;
 
-  if(secs_elapsed < 60){
+  if(secs_elapsed < 60){ // less than 1 minute
     time_elapsed = `${Math.trunc(secs_elapsed)} seconds ago`;
   }
-  else if (secs_elapsed < 21600){
+  else if (secs_elapsed < 3600){ // less than 1 hour
     time_elapsed = `${Math.trunc(secs_elapsed / 60)} minutes ago`;
   }
-  else if (secs_elapsed < 86400){
+  else if (secs_elapsed < 86400){ // less than 1 day
     time_elapsed = `${Math.trunc(secs_elapsed / 3600)} hours ago`;
   }
   else{

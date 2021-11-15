@@ -38,18 +38,22 @@ router.get('/', (req, res) => {
 // Render Frames page
 router.get('/frames', (req, res) => {
   res.render('frames', {key: process.env.CKO_PUBLIC_KEY});
+  //res.render('frames', {key: process.env.CKO_NAS_PUBLIC_KEY});
 });
 
 // Event notification listener
-router.post('/event-listener', (req, res) => {
+router.post('/event-listener/:accountStructure', (req, res) => {
 
-  console.log('received event...');
+  console.log(`received ${req.params.accountStructure} event notification...`);
+  console.log(req.headers);
+  console.log(req.body);
 
   // Verify authenticity of CKO event notification
 
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
-  const hmac_password = process.env.CKO_WEBHOOK_KEY; // Hub's 'Secret key' or Dashboard's 'Signature Key'
+  
+  const hmac_password = req.params.accountStructure === 'abc' ? process.env.CKO_SECRET_KEY : process.env.CKO_NAS_SECRET_KEY;
 
   const client_signature = crypto.createHmac('sha256', hmac_password)
     .update(stringified_body)
@@ -60,7 +64,7 @@ router.post('/event-listener', (req, res) => {
 
     console.log('signature match...');
 
-    const event = new Event({any: req.body});
+    const event = new Event({any: {path: req.path, headers: req.headers, body: req.body}});
 
     event.save(function (err, event) {
       if(err) {
@@ -68,7 +72,6 @@ router.post('/event-listener', (req, res) => {
         return console.error(err);
       }
       console.log('wrote event to database...');
-      //console.log(JSON.stringify(req.headers));
       res.status(200).end();
     });
 

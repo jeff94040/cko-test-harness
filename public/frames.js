@@ -7,8 +7,8 @@ Frames.init(
   {
     publicKey: key,
     debug: true,
-    localization: 'EN-GB',
-    modes: [Frames.modes.CVV_HIDDEN]
+    localization: 'EN-GB'
+    //modes: [Frames.modes.CVV_HIDDEN]
     //style: {...},
     //namespace: '...',
     //frameSelector: '...',
@@ -38,6 +38,10 @@ Frames.addEventHandler(Frames.Events.FRAME_VALIDATION_CHANGED, (event) => {
 
 Frames.addEventHandler(Frames.Events.PAYMENT_METHOD_CHANGED, (event) => {
   populate_frames_events_div(`The event 'Frames.Events.PAYMENT_METHOD_CHANGED' fired! ${JSON.stringify(event)}`);
+});
+
+Frames.addEventHandler(Frames.Events.CARD_BIN_CHANGED, (event) => {
+  populate_frames_events_div(`The event 'Frames.Events.CARD_BIN_CHANGED' fired! ${JSON.stringify(event)}`);
 });
 
 Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, (event) => {
