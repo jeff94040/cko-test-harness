@@ -1,5 +1,9 @@
 import express from 'express';
 import {router} from './routes.js';
+import dotenv from 'dotenv'; 
+
+//import config props from .env file
+dotenv.config();
 
 const app = express();
 const port = process.env.CKO_PORT;

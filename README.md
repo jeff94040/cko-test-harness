@@ -1,6 +1,6 @@
 ## Overview
 
-cko-test-harness is a web implementation of the Checkout.com Unified API. It allows users to quickly test and understand the payload-level transaction request and response details. The live web application is available at https://cko.jeff94040.ddns.net/
+cko-test-harness is a web implementation of Checkout.com. It allows users to quickly test and understand the payload-level transaction request and response details. The live web application runs at https://cko.jeff94040.ddns.net/
 
 ## Supported APIs & Services
 
@@ -16,21 +16,11 @@ cko-test-harness is a web implementation of the Checkout.com Unified API. It all
 
 ## Prerequisites
 
-* git
-* node.js
-* npm
+* Git
+* Node.js
+* NPM
 
-## Setup
-
-You must configure the following secret and public keys within the user-level environment variables on your server. CKO_PORT sets the port to run the application on and can be changed from default 3000 if necessary. CKO_HPP_LINKS_* keys are used to authenticate Hosted Payment Page and Payment Links-related services whereas CKO_API_* keys are used to authenticate all remaining APIs. Obtain these credentials from the channels menu of the checkout.com Hub. For example:
-
-* CKO_PORT = 3000
-* CKO_API_PUBLIC = pk_test_cc6b9135...
-* CKO_API_SECRET = sk_test_f1e0c0ae...
-* CKO_HPP_LINKS_PUBLIC = pk_test_bf4d6472...
-* CKO_HPP_LINKS_SECRET = sk_test_e2d1f4ba...
-
-## Usage
+## Installation
 
 Open a terminal, ```cd``` to the application's parent directory, then run:
 
@@ -38,5 +28,32 @@ Open a terminal, ```cd``` to the application's parent directory, then run:
 $ git clone https://github.com/jeff94040/cko-test-harness.git
 $ cd cko-test-harness/
 $ npm install
-$ node app
 ```
+
+## Configuration
+
+Create the file ```cko-test-harness/.env``` and set the following values:
+
+```# port to run node app
+CKO_PORT=3000
+
+# Mongo DB credentials
+MONGO_DB_NAME=your_db_name
+MONGO_DB_USER=your_db_user
+MONGO_DB_PASSWORD=your_db_password
+
+# Checkout.com ABC keys
+CKO_ABC_PUBLIC_KEY=pk_test_cc6b9135...
+CKO_ABC_SECRET_KEY=sk_test_6879a658...
+
+# Checkout.com NAS keys
+CKO_NAS_SECRET_KEY=sk_sbox_rjr7n...
+CKO_NAS_PUBLIC_KEY=pk_sbox_wzfdx...
+```
+
+## Run the application
+
+```$ node app
+```
+
+Browse to ```http://localhost:3000```

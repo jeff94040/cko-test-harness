@@ -2,6 +2,10 @@ import express from 'express';
 import fetch from 'node-fetch'; 
 import mongoose from 'mongoose';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+
+//import config props from .env file
+dotenv.config();
 
 const router = express.Router();
 
@@ -37,7 +41,7 @@ router.get('/', (req, res) => {
 
 // Render Frames page
 router.get('/frames', (req, res) => {
-  res.render('frames', {key: process.env.CKO_PUBLIC_KEY});
+  res.render('frames', {key: process.env.CKO_ABC_PUBLIC_KEY});
   //res.render('frames', {key: process.env.CKO_NAS_PUBLIC_KEY});
 });
 
@@ -53,7 +57,7 @@ router.post('/event-listener/:accountStructure', (req, res) => {
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
   
-  const hmac_password = req.params.accountStructure === 'abc' ? process.env.CKO_SECRET_KEY : process.env.CKO_NAS_SECRET_KEY;
+  const hmac_password = req.params.accountStructure === 'abc' ? process.env.CKO_ABC_SECRET_KEY : process.env.CKO_NAS_SECRET_KEY;
 
   const client_signature = crypto.createHmac('sha256', hmac_password)
     .update(stringified_body)
@@ -112,9 +116,9 @@ router.post('/fetch-events', (req, res) => {
 router.post('/fetch-api-request', async (req, res) => {
 
   // default key to sk, reassign to pk for /tokens endpoint only
-  let key = process.env.CKO_SECRET_KEY;
+  let key = process.env.CKO_ABC_SECRET_KEY;
   if(req.body.path === '/tokens')
-    key = process.env.CKO_PUBLIC_KEY;
+    key = process.env.CKO_ABC_PUBLIC_KEY;
 
   const data = {
     method: req.body.verb,
