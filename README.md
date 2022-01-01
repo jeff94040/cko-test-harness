@@ -22,9 +22,9 @@ cko-test-harness is a web implementation of Checkout.com. It allows users to qui
 
 ## Installation
 
-Open a terminal, ```cd``` to the application's parent directory, then run:
+Open a terminal and ```cd``` to the app's parent directory, then run:
 
-```console
+```
 $ git clone https://github.com/jeff94040/cko-test-harness.git
 $ cd cko-test-harness/
 $ npm install
@@ -34,7 +34,8 @@ $ npm install
 
 Create the file ```cko-test-harness/.env``` and set the following values:
 
-```# port to run node app
+```
+# port to run node app
 CKO_PORT=3000
 
 # Mongo DB credentials
@@ -53,7 +54,6 @@ CKO_NAS_PUBLIC_KEY=pk_sbox_wzfdx...
 
 ## Run the application
 
-```$ node app
-```
+```$ node app```
 
-Browse to ```http://localhost:3000```
+Browse to http://localhost:3000
