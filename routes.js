@@ -49,8 +49,8 @@ router.get('/frames', (req, res) => {
 router.post('/event-listener/:accountStructure', (req, res) => {
 
   console.log(`received ${req.params.accountStructure} event notification...`);
-  console.log(req.headers);
-  console.log(req.body);
+  //console.log(req.headers);
+  //console.log(req.body);
 
   // Verify authenticity of CKO event notification
 
@@ -96,6 +96,93 @@ router.get('/keys', (req, res) => {
 
 router.get('/pan-generator', (req, res) => {
   res.render('pan-generator');
+});
+
+router.get('/plaid-ach', (req, res) => {
+
+  res.render('plaid-ach');
+
+});
+
+router.get('/plaid/link-token', (req, res) => {
+
+    fetch('https://sandbox.plaid.com/link/token/create', {
+	    method: 'POST',
+	    body: JSON.stringify({
+        client_id: process.env.PLAID_CLIENT_ID,
+        secret: process.env.PLAID_SANDBOX_KEY,
+        user: {
+          client_user_id: "client_user_id_1"
+        },
+        client_name: "Jeff's CKO Test Harness",
+        products: ["auth"],
+        country_codes: ["US"],
+        language: "en"
+      }),
+	    headers: {'Content-Type': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(body => {
+      console.log(`response from /link/token/create: ${JSON.stringify(body)}`);
+      res.status(200).json(body);
+    })
+    
+});
+
+router.post('/plaid/access-token', async (req, res) => {
+
+  const public_res_http = await fetch('https://sandbox.plaid.com/item/public_token/exchange', {
+    method: 'POST',
+    body: JSON.stringify({
+      client_id: process.env.PLAID_CLIENT_ID,
+      secret: process.env.PLAID_SANDBOX_KEY,
+      public_token: req.body.public_token}),
+    headers: {'Content-Type': 'application/json'}
+  });
+
+  const public_res_body = await public_res_http.json();
+  console.log(`response from /item/public_token/exchange: ${JSON.stringify(public_res_body)}`);
+
+  const processor_res_http = await fetch('https://sandbox.plaid.com/processor/token/create', {
+    method: 'POST',
+    body: JSON.stringify({
+      client_id: process.env.PLAID_CLIENT_ID,
+      secret: process.env.PLAID_SANDBOX_KEY,
+      access_token: public_res_body.access_token,
+      account_id: req.body.account_id,
+      processor: 'checkout'}),
+    headers: {'Content-Type': 'application/json'}
+  });
+
+  const processor_res_body = await processor_res_http.json();
+  console.log(`response from /processor/token/create: ${JSON.stringify(processor_res_body)}`);
+
+  const cko_res_http = await fetch('https://api.sandbox.checkout.com/payments', {
+    method: 'POST',
+    body: JSON.stringify({
+      source: {
+          type: 'provider_token',
+          payment_method: 'ach',
+          token: 'processor-sandbox-68d7b530-c0ae-49bf-b6dc-f2ff11aa5106',
+          account_holder: {
+              type: 'Individual'
+          }
+      },
+      amount: 4500,
+      currency: 'USD',
+      processing_channel_id: 'pc_i7u3hlih2nze7mq6digv3pemuq'
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.CKO_NAS_SECRET_KEY}`
+    }
+  });
+
+  const cko_res_body = await cko_res_http.json();
+  console.log(`response from /payments: ${JSON.stringify(cko_res_body)}`);
+
+  res.status(200).json(cko_res_body);
+
 });
 
 // Return events

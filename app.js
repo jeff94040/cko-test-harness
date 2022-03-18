@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 //import config props from .env file
 dotenv.config();
 
-const app = express();
+var app = express();
 const port = process.env.CKO_PORT;
 
 // Body parser middleware
