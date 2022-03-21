@@ -1,4 +1,7 @@
-document.querySelector('#checkbox').addEventListener('click', function() {
+document.querySelector('#ach-authorization-checkbox').addEventListener('click', function() {
+
+  if(!this.checked)
+    return;
 
   console.log('asking server to call https://sandbox.plaid.com/link/token/create...');
 
@@ -24,6 +27,7 @@ document.querySelector('#checkbox').addEventListener('click', function() {
         console.log('- https://sandbox.plaid.com/item/public_token/exchange')
         console.log('- https://sandbox.plaid.com/processor/token/create')
         console.log('- https://api.sandbox.checkout.com/payments')
+        document.querySelector('#spinner').className='spinner-border d-inline-block';
         fetch('/plaid/access-token', {
           method: 'POST',
           body: JSON.stringify({
@@ -35,7 +39,13 @@ document.querySelector('#checkbox').addEventListener('click', function() {
         .then(response => response.json())
         .then(body => {
           console.log(body)
+          document.querySelector('#spinner').className='spinner-border d-none';
           document.querySelector("#plaid-results-div").innerHTML = JSON.stringify(body, null, 2);
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show())        
         });
       }
     });
@@ -44,4 +54,3 @@ document.querySelector('#checkbox').addEventListener('click', function() {
   }
 
 })
-
