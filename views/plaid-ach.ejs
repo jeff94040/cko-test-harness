@@ -11,11 +11,18 @@
   <body class="bg-light">
     <%- include('navbar'); %>
     <div class="container-fluid">
+      <div class="mb-3">
+        <label for="plaid-link-token" class="form-label">Plaid Link Token:</label>
+        <input style="width:500px" type="text" class="form-control" id="plaid-link-token">
+      </div>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" id="ach-authorization-checkbox">
         <label class="form-check-label" for="ach-authorization-checkbox">
           I authorize Jeff's CKO Test Harness to debit my pretend bank account.
         </label>
+      </div>
+      <div class="mb-3">
+        <button type="button" class="btn btn-secondary" id="ach-submit-button">Submit</button>
       </div>
       <div class="spinner-border d-none" role="status" id="spinner"></div>
       <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false" style="width:fit-content">

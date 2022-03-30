@@ -163,7 +163,7 @@ router.post('/plaid/access-token', async (req, res) => {
       source: {
           type: 'provider_token',
           payment_method: 'ach',
-          token: 'processor-sandbox-68d7b530-c0ae-49bf-b6dc-f2ff11aa5106',
+          token: processor_res_body.processor_token,
           account_holder: {
               type: 'Individual'
           }
