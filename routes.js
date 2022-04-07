@@ -9,10 +9,11 @@ dotenv.config();
 
 const router = express.Router();
 
-// database credentials
-const mongo_db_name = process.env.MONGO_DB_NAME;
+// mongo database credentials
 const mongo_db_user = process.env.MONGO_DB_USER;
 const mongo_db_password = process.env.MONGO_DB_PASSWORD;
+const mongo_db_cluster_domain = process.env.MONGO_DB_CLUSTER_DOMAIN;
+const mongo_db_name = process.env.MONGO_DB_NAME;
 
 // database schema
 const eventSchema = new mongoose.Schema({any: {}});
@@ -23,7 +24,7 @@ const Event = mongoose.model('Event', eventSchema);
 const Key = mongoose.model('Key', keySchema);
 
 // initialize database connection
-mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@cluster0.3gcos.mongodb.net/${mongo_db_name}?authSource=admin&replicaSet=atlas-h15pmt-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
+mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@${mongo_db_cluster_domain}/${mongo_db_name}`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
 
 // connection object
 const db = mongoose.connection;
@@ -32,7 +33,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
 // fires on successful database connection
-db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_user}:*****@cluster0.3.gcos.mongodb.net/${mongo_db_name}`) });
+db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_user}:*****@${mongo_db_cluster_domain}/${mongo_db_name}`) });
 
 // Render CKO Test Harness homepage
 router.get('/', (req, res) => {
@@ -41,8 +42,12 @@ router.get('/', (req, res) => {
 
 // Render Frames page
 router.get('/frames', (req, res) => {
-  res.render('frames', {key: process.env.CKO_ABC_PUBLIC_KEY});
-  //res.render('frames', {key: process.env.CKO_NAS_PUBLIC_KEY});
+  res.render('frames');
+});
+
+// Get public key for Frames
+router.get('/frames-key', (req, res) => {
+  res.status(200).json({key: process.env.CKO_NAS_PUBLIC_KEY});
 });
 
 // Event notification listener

@@ -1,20 +1,30 @@
-//const payButton = document.querySelector("#pay-button");
+// HTML <div> to log events
 const frames_events_div = document.querySelector("#frames-events-div");
+
+// Log counter ++ per event fired
 var log_counter = 0;
 
-// key passed from server
-Frames.init(
-  {
-    publicKey: key,
-    debug: true,
-    localization: 'EN-GB'
-    //modes: [Frames.modes.CVV_HIDDEN]
-    //style: {...},
-    //namespace: '...',
-    //frameSelector: '...',
-    //captureCVV: false -- this option is a suggested enhancement
-  }
-);
+// Fetch Frames public key from server
+console.log('fetching Frames public key from server...')
+fetch('/frames-key')
+  .then(response => response.json())
+  .then(body => {
+    console.log(`server returned: ${JSON.stringify(body)}`)
+
+    // Init Frames
+    Frames.init(
+      {
+        publicKey: body.key,
+        debug: true,
+        localization: 'EN-GB'
+        //modes: [Frames.modes.CVV_HIDDEN]
+        //style: {...},
+        //namespace: '...',
+        //frameSelector: '...',
+        //captureCVV: false -- this option is a suggested enhancement
+      }
+    );    
+});
 
 Frames.addEventHandler(Frames.Events.READY, (event) => {
   populate_frames_events_div(`The event 'Frames.Events.READY' fired!`);
@@ -62,15 +72,6 @@ Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, (event) => {
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, (event) => {
   populate_frames_events_div(`The event 'Frames.Events.CARD_TOKENIZATION_FAILED' fired! ${JSON.stringify(event)}`);
 });
-
-// Event listener: button click
-/*
-payButton.addEventListener('click', (event) => {
-  payButton.disabled = true;
-  event.preventDefault();
-  Frames.submitCard();
-});
-*/
 
 function populate_frames_events_div(log_text){
   log_counter++;
