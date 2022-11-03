@@ -62,7 +62,7 @@ router.post('/event-listener/:accountStructure', (req, res) => {
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
   
-  const hmac_password = req.params.accountStructure === 'abc' ? process.env.CKO_ABC_SECRET_KEY : process.env.CKO_NAS_SECRET_KEY;
+  const hmac_password = process.env.CKO_NAS_WEBHOOK_KEY;
 
   const client_signature = crypto.createHmac('sha256', hmac_password)
     .update(stringified_body)
@@ -87,6 +87,8 @@ router.post('/event-listener/:accountStructure', (req, res) => {
   }
   else{
     console.log('signature mismatch...');
+    console.log('server signature: ' + server_signature);
+    console.log('client signature: ' + client_signature);
   }
 
 });
