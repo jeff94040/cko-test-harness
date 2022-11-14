@@ -181,7 +181,7 @@ router.post('/plaid/access-token', async (req, res) => {
     }),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.CKO_NAS_SECRET_KEY}`
+      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
     }
   });
 
