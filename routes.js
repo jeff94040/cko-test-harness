@@ -47,7 +47,8 @@ router.get('/frames', (req, res) => {
 
 // Get public key for Frames
 router.get('/frames-key', (req, res) => {
-  res.status(200).json({key: process.env.CKO_NAS_PUBLIC_KEY});
+  //res.status(200).json({key: process.env.CKO_NAS_PUBLIC_KEY});
+  res.send(process.env.CKO_NAS_PUBLIC_KEY)
 });
 
 // Event notification listener
@@ -106,9 +107,11 @@ router.get('/pan-generator', (req, res) => {
 });
 
 router.get('/plaid-ach', (req, res) => {
-
   res.render('plaid-ach');
+});
 
+router.get('/risk-js', (req, res) => {
+  res.render('risk-js');
 });
 
 router.get('/plaid/link-token', (req, res) => {
