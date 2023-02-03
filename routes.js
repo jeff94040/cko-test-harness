@@ -72,7 +72,7 @@ router.post('/event-listener/:accountStructure', (req, res) => {
   // if signature matches, write event to DB
   if(server_signature === client_signature){
 
-    console.log('signature match...');
+    //console.log('signature match...');
 
     const event = new Event({any: {path: req.path, headers: req.headers, body: req.body}});
 
@@ -109,6 +109,48 @@ router.get('/pan-generator', (req, res) => {
 router.get('/plaid-ach', (req, res) => {
   res.render('plaid-ach');
 });
+
+router.get('/paypal-create-order', async (req, res) => {
+  
+  const cko_res_http = await fetch('https://api.sandbox.checkout.com/payments', {
+    method: 'POST',
+    body: JSON.stringify({
+      source: {
+          type: 'paypal'
+      },
+      currency: 'USD',
+      amount: 3000,
+      items: [
+          {
+          name: 'laptop',
+          unit_price: 2000,
+          quantity: 1
+          },
+         {
+          name: 'desktop',
+          unit_price: 1000,
+          quantity: 1
+          }        
+      ],
+      processing_channel_id: `${process.env.CKO_NAS_PROCESSING_CHANNEL_ID}`,
+      success_url: 'http://www.example.com/success.html',
+      failure_url: 'http://www.example.com/failure.html'
+  }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+    }
+  });
+
+  const cko_res_body = await cko_res_http.json();
+  //console.log(`response from /payments: ${JSON.stringify(cko_res_body)}`);  
+
+  res.send(cko_res_body.processing.order_id)
+})
+
+router.get('/paypal', (req, res) => {
+  res.render('paypal')
+})
 
 router.get('/risk-js', (req, res) => {
   res.render('risk-js');
