@@ -13,20 +13,42 @@ Frames.init(
   {
     publicKey: public_key,
     debug: false,
-    localization: 'EN-GB'
+    localization: 'EN-GB',
+    schemeChoice: true
     //modes: [Frames.modes.CVV_HIDDEN]
     //style: {...},
     //namespace: '...',
     //frameSelector: '...',
-    //captureCVV: false -- this option is a suggested enhancement
   }
-);    
-
-Frames.addEventHandler(Frames.Events.READY, (event) => {
+);
+/*
+Frames.cardholder = {
+  name: 'John Doe',
+  billingAddress: {
+    addressLine1: '123 Test St',
+    city: 'San Francisco',
+    state: 'CA',
+    zip: '94040',
+    country: 'US'
+  },
+  phone: '5551234567'
+}
+*/
+/*
+// console.log(Frames.debugMode) <-- undefined
+console.log(Frames.debug)
+console.log(Frames.publicKey)
+console.log(Frames.namespace)
+console.log(Frames.version)
+console.log(Frames.cardholder)
+console.log(Frames.localization)
+console.log(Frames.config)
+*/
+Frames.addEventHandler(Frames.Events.READY, () => {
   populate_frames_events_div(`The event 'Frames.Events.READY' fired!`);
 });
 
-Frames.addEventHandler(Frames.Events.FRAME_ACTIVATED, (event) => {
+Frames.addEventHandler(Frames.Events.FRAME_ACTIVATED, () => {
   populate_frames_events_div(`The event 'Frames.Events.FRAME_ACTIVATED' fired!`);
 });
 
