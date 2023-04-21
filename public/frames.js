@@ -86,7 +86,7 @@ Frames.addEventHandler(Frames.Events.CARD_SUBMITTED, (event) => {
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, (event) => {
     populate_frames_events_div(`The event 'Frames.Events.CARD_TOKENIZED' fired! <a href='/'>Proceed to use the token via API.</a> ${JSON.stringify(event)}`);
     Frames.enableSubmitForm();
-    get_device_fingerprint(); // invoke Risk.js
+    //get_device_fingerprint(); // invoke Risk.js
 });
 
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, (event) => {
@@ -98,7 +98,7 @@ function populate_frames_events_div(log_text){
   frames_events_div.innerHTML = `${log_counter}) ${log_text}<br>${frames_events_div.innerHTML}`;
 }
 
-/*** Risk.js ***/
+/*** Risk.js
 
 const script = document.getElementById('risk-js');
 
@@ -109,4 +109,4 @@ async function get_device_fingerprint() {
   populate_frames_events_div(`Received Risk.js device fingerprint: ${deviceSessionId}`);
 }
 
-/*** Risk.js ***/
+Risk.js ***/
