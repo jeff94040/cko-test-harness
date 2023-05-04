@@ -45,16 +45,18 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
   // payment authorized by user
   applePaySession.onpaymentauthorized = async (event) => {
     // submit payment
-    const paymentResponse = await fetch('/apple-pay-payment', {
+    const paymentResponse = await (await fetch('/apple-pay-payment', {
       method: 'POST',
       body: JSON.stringify({
         token: event.payment.token
       }),
       headers: {'Content-Type': 'application/json'}
-    })
+    })).json()
 
     // update session w/ payment results
-    applePaySession.completePayment(paymentResponse.status === 201 ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE)
+    document.querySelector('#apple-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
+
+    applePaySession.completePayment(paymentResponse.approved === true ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE)
   }
 
 })

@@ -114,7 +114,7 @@ router.post('/apple-pay-validate-session', async (req, res) => {
     agent: httpsAgent
   })).json()
 
-  res.status(200).json(validateSessionResponse);
+  res.status(200).json(validateSessionResponse)
 })
 
 // apple pay - request payment
@@ -134,7 +134,7 @@ router.post('/apple-pay-payment', async (req, res) => {
   })).json()
 
   // apple pay - submit payment
-  const paymentResponse = await fetch('https://api.sandbox.checkout.com/payments', {
+  const paymentResponse = await (await fetch('https://api.sandbox.checkout.com/payments', {
     method: 'POST',
     body: JSON.stringify({
       'source': {
@@ -150,9 +150,9 @@ router.post('/apple-pay-payment', async (req, res) => {
       'Content-Type': 'application/json',
       'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
     }
-  })
+  })).json()
 
-  res.status(paymentResponse.status).end()
+  res.status(200).json(paymentResponse)
 })
 
 // webhook listener
