@@ -39,6 +39,7 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
       }),
       headers: {'Content-Type': 'application/json'}
     })).json()
+    console.log( `validate session response: ${JSON.stringify(validateSessionResponse)}`)
     applePaySession.completeMerchantValidation(validateSessionResponse)
   }
 

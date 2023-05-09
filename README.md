@@ -1,21 +1,17 @@
 ## Overview
 
-cko-test-harness is a web implementation of Checkout.com. It allows users to quickly test and understand the payload-level transaction request and response details. The live web application runs at https://cko.jeff94040.ddns.net/
+cko-test-harness is a web implementation of Checkout.com's UI-based products. The live web application runs at https://cko.jeff94040.ddns.net/
 
 ## Supported APIs & Services
 
 * Apple Pay
-* PayPal
-* Plaid ACH
 * Frames
 * Hosted Payment Page
 * Payment Links
+* Payments
+* PayPal
+* Plaid ACH
 * Webhooks
-* Customers API
-* Events API
-* Payments API
-* Sources API
-* Token API
 
 ## Prerequisites
 

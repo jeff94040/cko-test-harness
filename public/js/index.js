@@ -22,34 +22,6 @@ const data = {
     'verb': '',
     'path': '',
   },
-  'update-customer-details': {
-    'verb': 'PATCH',
-    'path': '/customers/{id}',
-    'body': {
-      'email': 'jdoe@gmail.com',
-      'name': 'John Doe'
-    }
-  },
-  'retrieve-event-types': {
-    'verb': 'GET',
-    'path': '/event-types'
-  },
-  'retrieve-event': {
-    'verb': 'GET',
-    'path': '/events/{eventId}'
-  },
-  'retrieve-event-notification': {
-    'verb': 'GET',
-    'path': '/events/{eventId}/notifications/{notificationId}'
-  },
-  'retry-webhook': {
-    'verb': 'POST',
-    'path': '/events/{eventId}/webhooks/{webhookId}/retry'
-  },
-  'retry-all-webhooks': {
-    'verb': 'POST',
-    'path': '/events/{eventId}/webhooks/retry'
-  },
   'request-payment': {
     'verb': 'POST',
     'path': '/payments',
@@ -139,27 +111,6 @@ const data = {
     'verb': 'POST',
     'path': '/payments/{id}/voids'
   },
-  'create-payment-source': {
-    'verb': 'POST',
-    'path': '/sources',
-    'body': {
-      'type': 'ACH',
-      'billing_address': {
-        'address_line1': '123 Test St',
-        'city': 'Mountain View',
-        'state': 'CA',
-        'zip': 94040,
-        'country': 'US'
-      },
-      'source_data': {
-        'account_type': 'Checking',
-        'account_number': '1234',
-        'routing_number': '12345678',
-        'account_holder_name': 'John Doe',
-        'billing_descriptor': 'My descriptor'
-      }
-    }
-  },
   'payment-link': {
     'verb': 'POST',
     'path': '/payment-links',
@@ -189,92 +140,6 @@ const data = {
     'failure_url': 'https://cko.jeff94040.ddns.net',
     'cancel_url': 'https://cko.jeff94040.ddns.net'      
     }
-  },
-  'retrieve-webhooks': {
-    'verb': 'GET',
-    'path': '/webhooks',
-  },
-  'register-webhook': {
-    'verb': 'POST',
-    'path': '/webhooks',
-    'body': {
-      'url': 'https://cko.jeff94040.ddns.net/webhook-listener',
-      'active': true,
-      'headers': {
-        'authorization': '1234'
-      },
-      'content_type': 'json',
-      'event_types': [
-        'payment_approved',
-        'payment_captured'
-      ]
-    }
-  },
-  'retrieve-webhook': {
-    'verb': 'GET',
-    'path': '/webhooks/{id}',
-    'body': {
-      'url': 'https://example.com/webhooks',
-      'active': true,
-      'headers': {
-        'authorization': '1234'
-      },
-      'content_type': 'json',
-      'event_types': [
-        'payment_approved',
-        'payment_captured'
-      ]
-    }
-  },
-  'update-webhook': {
-    'verb': 'PUT',
-    'path': '/webhooks/{id}',
-    'body': {
-      'url': 'https://example.com/webhooks',
-      'active': true,
-      'headers': {
-        'authorization': '1234'
-      },
-      'content_type': 'json',
-      'event_types': [
-        'payment_approved',
-        'payment_captured'
-      ]
-    }
-  },
-  'partially-update-webhook': {
-    'verb': 'PATCH',
-    'path': '/webhooks/{id}',
-    'body': {
-      'url': 'https://example.com/webhooks',
-      'active': true,
-      'headers': {
-        'authorization': '1234'
-      },
-      'content_type': 'json',
-      'event_types': [
-        'payment_approved',
-        'payment_captured'
-      ]
-    }
-  },
-  'request-token': {
-    'verb': 'POST',
-    'path': '/tokens',
-    'body': {
-      'type': 'card',
-      'number': '4242424242424242',
-      'expiry_month': '01',
-      'expiry_year': '2030'
-    },
-  },
-  'remove-webhook': { 
-    'verb': 'DELETE',
-    'path': '/webhooks/{id}',
-  },
-  'get-fx-rate-quote': {
-    'verb': 'POST',
-    'path': '/forex/rates/{base-currency}/{quote-currency}'
   },
   'pre-3ds-risk-scan': {
     'verb': 'POST',
