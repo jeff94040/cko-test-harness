@@ -5,6 +5,7 @@ import {paypalRouter} from './routes/paypal.js';
 import {plaidAchRouter} from './routes/plaid-ach.js';
 import {upapiRouter} from './routes/upapi.js';
 import {webhooksRouter} from './routes/webhooks.js';
+import {siftRouter} from './routes/sift.js'
 
 import dotenv from 'dotenv'; 
 
@@ -14,14 +15,12 @@ dotenv.config();
 var app = express();
 const port = process.env.CKO_PORT;
 
-// Set folder location for static content
-app.use(express.static('public/html', {extensions: 'html'}));
-app.use(express.static('public/js'));
-app.use(express.static('public'));
-
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
+
+// Session middleware
+//app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 
 // Trust front-facing proxies 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, fc00::/7
 app.set('trust proxy', 'uniquelocal');
@@ -32,6 +31,12 @@ app.use('/', paypalRouter);
 app.use('/', plaidAchRouter);
 app.use('/', upapiRouter);
 app.use('/', webhooksRouter);
+app.use('/', siftRouter)
+
+// Set folder location for static content
+app.use(express.static('public/html', {extensions: 'html'}));
+app.use(express.static('public/js'));
+app.use(express.static('public'));
 
 app.listen(port, () => {
   console.log(`Checkout app listening at http://localhost:${port}`)

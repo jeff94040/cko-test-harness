@@ -1,8 +1,8 @@
-// HTML <div> to log events
-const frames_events_div = document.querySelector("#frames-events-div");
+// Table body elem to log events
+const eventsTableBody = document.querySelector('#events-table-body')
 
 // Log counter ++ per event fired
-var log_counter = 0;
+var eventCounter = 0;
 
 // Fetch Frames public key from server
 
@@ -45,68 +45,54 @@ console.log(Frames.localization)
 console.log(Frames.config)
 */
 Frames.addEventHandler(Frames.Events.READY, () => {
-  populate_frames_events_div(`The event 'Frames.Events.READY' fired!`);
+  updateEventsTableBody('Frames.Events.READY',{})
 });
 
 Frames.addEventHandler(Frames.Events.FRAME_ACTIVATED, () => {
-  populate_frames_events_div(`The event 'Frames.Events.FRAME_ACTIVATED' fired!`);
+  updateEventsTableBody('Frames.Events.FRAME_ACTIVATED',{})
 });
 
 Frames.addEventHandler(Frames.Events.FRAME_FOCUS, (event) => {
-  populate_frames_events_div(`The event 'Frames.Events.FRAME_FOCUS' fired! ${JSON.stringify(event)}`);
+  updateEventsTableBody('Frames.Events.FRAME_FOCUS', event)
 });
 
 Frames.addEventHandler(Frames.Events.FRAME_BLUR, (event) => {
-  populate_frames_events_div(`The event 'Frames.Events.FRAME_BLUR' fired! ${JSON.stringify(event)}`);
+  updateEventsTableBody('Frames.Events.FRAME_BLUR', event)
 });
 
 Frames.addEventHandler(Frames.Events.FRAME_VALIDATION_CHANGED, (event) => {
-  populate_frames_events_div(`The event 'Frames.Events.FRAME_VALIDATION_CHANGED' fired! ${JSON.stringify(event)}`);
+  updateEventsTableBody('Frames.Events.FRAME_VALIDATION_CHANGED', event)
 });
 
 Frames.addEventHandler(Frames.Events.PAYMENT_METHOD_CHANGED, (event) => {
-  populate_frames_events_div(`The event 'Frames.Events.PAYMENT_METHOD_CHANGED' fired! ${JSON.stringify(event)}`);
+  updateEventsTableBody('Frames.Events.PAYMENT_METHOD_CHANGED', event)
 });
 
 Frames.addEventHandler(Frames.Events.CARD_BIN_CHANGED, (event) => {
-  populate_frames_events_div(`The event 'Frames.Events.CARD_BIN_CHANGED' fired! ${JSON.stringify(event)}`);
+  updateEventsTableBody('Frames.Events.CARD_BIN_CHANGED', event)
 });
 
 Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, (event) => {
-    populate_frames_events_div(`The event 'Frames.Events.CARD_VALIDATION_CHANGED' fired! ${JSON.stringify(event)}`);
-    if(Frames.isCardValid())
-      Frames.submitCard();
+  updateEventsTableBody('Frames.Events.CARD_VALIDATION_CHANGED', event)
+  if(Frames.isCardValid())
+    Frames.submitCard();
 });
 
 Frames.addEventHandler(Frames.Events.CARD_SUBMITTED, (event) => {
-    populate_frames_events_div(`The event 'Frames.Events.CARD_SUBMITTED' fired!`);
-
+    updateEventsTableBody('Frames.Events.CARD_SUBMITTED', event)
 });
   
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, (event) => {
-    populate_frames_events_div(`The event 'Frames.Events.CARD_TOKENIZED' fired! <a href='/'>Proceed to use the token via API.</a> ${JSON.stringify(event)}`);
+    updateEventsTableBody('Frames.Events.CARD_TOKENIZED', event)
     Frames.enableSubmitForm();
-    //get_device_fingerprint(); // invoke Risk.js
 });
 
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, (event) => {
-  populate_frames_events_div(`The event 'Frames.Events.CARD_TOKENIZATION_FAILED' fired! ${JSON.stringify(event)}`);
+  updateEventsTableBody('Frames.Events.CARD_TOKENIZATION_FAILED', event)
 });
 
-function populate_frames_events_div(log_text){
-  log_counter++;
-  frames_events_div.innerHTML = `${log_counter}) ${log_text}<br>${frames_events_div.innerHTML}`;
+function updateEventsTableBody(eventName, eventPayload){
+  const row = document.createElement('tr')
+  row.innerHTML = `<th scope='row'>${++eventCounter}</th><td>${eventName}</td><td>${JSON.stringify(eventPayload)}</td>`
+  eventsTableBody.insertBefore(row, eventsTableBody.firstChild)
 }
-
-/*** Risk.js
-
-const script = document.getElementById('risk-js');
-
-const risk = window.Risk.init(public_key);
-
-async function get_device_fingerprint() {
-  const deviceSessionId = await risk.publishRiskData(); // dsid_XXXX
-  populate_frames_events_div(`Received Risk.js device fingerprint: ${deviceSessionId}`);
-}
-
-Risk.js ***/

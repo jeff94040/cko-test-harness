@@ -25,9 +25,9 @@ function generate_pans(){
 
   pans_div.innerHTML = '';
 
-  for(a=0; a < num_pans.value; a++){
+  for(let a=0; a < num_pans.value; a++){
     var pan = pan_prefix.value;
-    for(i = pan_prefix.value.length; i < pan_length.value; i++){
+    for(let i = pan_prefix.value.length; i < pan_length.value; i++){
       pan += Math.floor(Math.random() * 10);
     }
     if(luhnChk(pan)){
