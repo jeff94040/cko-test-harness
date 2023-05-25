@@ -9,10 +9,33 @@ const paypalButtonsComponent = paypal.Buttons({
 
     // set up the transaction
     createOrder: async (data, actions) => {
-      // fetch paypal order id from server and return it here
-      const createOrderResponse = await (await fetch('/paypal-create-order')).json()
-      console.log(`create order response: ${JSON.stringify(createOrderResponse)}`)
-      return createOrderResponse.processing.order_id
+      const response = await (await fetch('/create-apm-url', {
+        method: 'POST',
+        body: JSON.stringify({
+            source: {
+                type: 'paypal'
+            },
+            items: [
+                {
+                    name: 'laptop',
+                    unit_price: 2000,
+                    quantity: 1
+                },
+                {
+                    name: 'desktop',
+                    unit_price: 1000,
+                    quantity: 1
+                }        
+            ],
+          currency: 'USD',
+          amount: 3000
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })).json()
+      console.log(`create apm url response: ${JSON.stringify(response)}`);
+      return response.processing.order_id
     },
 
     // finalize the transaction

@@ -12,7 +12,7 @@ const public_key = await (await fetch('/frames-key')).text()
 Frames.init(
   {
     publicKey: public_key,
-    debug: false,
+    debug: true,
     localization: 'EN-GB',
     schemeChoice: true
     //modes: [Frames.modes.CVV_HIDDEN]

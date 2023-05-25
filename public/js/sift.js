@@ -1,4 +1,4 @@
-const siftBeaconKey = await (await fetch('/sift/beacon-key')).text()
+const siftBeaconKey = await (await fetch('/sift/beacaon-key')).text()
 const siftUserId = await (await fetch('/sift/user-id')).text()
 
 const cookie = document.cookie
