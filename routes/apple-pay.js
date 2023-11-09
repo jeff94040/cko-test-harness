@@ -10,7 +10,7 @@ const applePayRouter = express.Router();
 //import config props from .env file
 dotenv.config();
 
-// apple pay - return merchant id
+// apple pay - return merchant id 
 applePayRouter.get('/apple-pay-merchant-id', (req, res) => {
   res.send(process.env.APPLE_PAY_MERCHANT_ID)
 })

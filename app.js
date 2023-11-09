@@ -6,6 +6,7 @@ import {plaidAchRouter} from './routes/plaid-ach.js';
 import {upapiRouter} from './routes/upapi.js';
 import {webhooksRouter} from './routes/webhooks.js';
 import {siftRouter} from './routes/sift.js';
+import {paymentComponentsRouter} from './routes/payment-components.js';
 
 import dotenv from 'dotenv'; 
 
@@ -32,6 +33,7 @@ app.use('/', plaidAchRouter);
 app.use('/', upapiRouter);
 app.use('/', webhooksRouter);
 app.use('/', siftRouter)
+app.use('/', paymentComponentsRouter);
 
 // Set folder location for static content
 app.use(express.static('public/html', {extensions: 'html'}));
