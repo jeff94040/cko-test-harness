@@ -1,3 +1,5 @@
+import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs';
+
 const action = document.querySelector('#action');
 const submit_button = document.querySelector('#submit-button');
 const submit_button_text = submit_button.querySelector('#submit-button-text');
@@ -76,8 +78,8 @@ const data = {
       },
       'processing': {
         'senderInformation': {
-          'reference': Math.floor(Math.random() * 1000000000),
-          'accountNumber': Math.floor(Math.random() * 1000000000),
+          'reference': `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
+          'accountNumber': faker.number.int({ min: 1000, max: 100000 }),
           'firstName': 'John',
           'lastName': 'Doe',
           'address': '123 Test St',
@@ -171,7 +173,7 @@ const data = {
       },
       'payment': {
         'psp': 'checkout.com',
-        'id': gen_rand_ref(16)
+        'id': `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`
       },
       'shipping': {
         'address': {
@@ -183,9 +185,9 @@ const data = {
           'country': 'US'
         }
       },
-      'reference': `${gen_rand_ref(4)}-${gen_rand_ref(4)}`,
+      'reference': `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
       'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
-      'amount': `${Math.floor(Math.random() * 10000)}`,
+      'amount': faker.number.int({ min: 1000, max: 100000 }),
       'currency': 'USD',
       'metadata': {
         'md_1': 'md_1',
@@ -240,7 +242,7 @@ function action_menu_toggled(){
     else{
 
       var action_body = data[action.value].body;
-      action_body.reference = `${gen_rand_ref(4)}-${gen_rand_ref(4)}`;
+      action_body.reference = `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`;
       
       //console.log(action_body);
 
@@ -339,12 +341,3 @@ submit_button.addEventListener('click', async () => {
   submit_button_processing.className = 'visually-hidden';
 
 });
-
-function gen_rand_ref(length){
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ )
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  return result;
-}

@@ -39,6 +39,7 @@ app.use('/', paymentComponentsRouter);
 app.use(express.static('public/html', {extensions: 'html'}));
 app.use(express.static('public/js'));
 app.use(express.static('public'));
+app.use(express.static('node_modules'))
 
 app.listen(port, () => {
   console.log(`Checkout app listening at http://localhost:${port}`)

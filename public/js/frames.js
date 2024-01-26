@@ -1,6 +1,9 @@
 // Table body elem to log events
 const eventsTableBody = document.querySelector('#events-table-body')
 
+let cardSubmittedTimestamp;
+let cardTokenizedTimestamp;
+
 // Log counter ++ per event fired
 var eventCounter = 0;
 
@@ -12,7 +15,7 @@ const public_key = await (await fetch('/frames-key')).text()
 Frames.init(
   {
     publicKey: public_key,
-    debug: true,
+    debug: false,
     localization: 'EN-GB',
     schemeChoice: true
     //modes: [Frames.modes.CVV_HIDDEN]
@@ -60,16 +63,16 @@ Frames.addEventHandler(Frames.Events.FRAME_BLUR, (event) => {
   updateEventsTableBody('Frames.Events.FRAME_BLUR', event)
 });
 
-Frames.addEventHandler(Frames.Events.FRAME_VALIDATION_CHANGED, (event) => {
-  updateEventsTableBody('Frames.Events.FRAME_VALIDATION_CHANGED', event)
-});
-
 Frames.addEventHandler(Frames.Events.PAYMENT_METHOD_CHANGED, (event) => {
   updateEventsTableBody('Frames.Events.PAYMENT_METHOD_CHANGED', event)
 });
 
 Frames.addEventHandler(Frames.Events.CARD_BIN_CHANGED, (event) => {
   updateEventsTableBody('Frames.Events.CARD_BIN_CHANGED', event)
+});
+
+Frames.addEventHandler(Frames.Events.FRAME_VALIDATION_CHANGED, (event) => {
+  updateEventsTableBody('Frames.Events.FRAME_VALIDATION_CHANGED', event)
 });
 
 Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, (event) => {
@@ -79,12 +82,17 @@ Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, (event) => {
 });
 
 Frames.addEventHandler(Frames.Events.CARD_SUBMITTED, (event) => {
-    updateEventsTableBody('Frames.Events.CARD_SUBMITTED', event)
+  cardSubmittedTimestamp = Date.now()
+  console.log(`CARD_SUBMITTED TIMESTAMP: ${cardSubmittedTimestamp}`)
+  updateEventsTableBody('Frames.Events.CARD_SUBMITTED', event)
 });
   
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, (event) => {
-    updateEventsTableBody('Frames.Events.CARD_TOKENIZED', event)
-    Frames.enableSubmitForm();
+  cardTokenizedTimestamp = Date.now()
+  console.log(`CARD_TOKENIZED TIMESTAMP: ${cardTokenizedTimestamp}`)
+  console.log(`TIMESTAMP_DELTA_MILLISECONDS: ${cardTokenizedTimestamp - cardSubmittedTimestamp}`)
+  updateEventsTableBody('Frames.Events.CARD_TOKENIZED', event)
+  Frames.enableSubmitForm();
 });
 
 Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, (event) => {
