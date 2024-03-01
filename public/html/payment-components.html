@@ -46,9 +46,9 @@
   <div class="container-fluid">
     <div class="row align-items-start">
       <div class="col">
-        <button type="button" class="btn btn-primary btn-sm mb-3" id="mount-pc-button">Mount Payment Components</button>
+        <button type="button" class="btn btn-primary btn-sm mb-3" id="mount-pc-button">Refresh Payment Components</button>
         <div class="form-floating">
-          <select class="form-select" id="locale-dropdown">
+          <select class="form-select form-select-sm" id="locale-dropdown">
             <option value="ar">Arabic</option>
             <option value="zh">Chinese (China)</option>
             <option value="zh-hk">Chinese (Hong Kong)</option>
@@ -74,9 +74,16 @@
           </select>
           <label for="locale-dropdown">Locale</label>
         </div>
+        <div class="form-floating">
+          <select class="form-select form-select-sm" id="show-pay-button-dropdown">
+            <option value="true" selected>true</option>
+            <option value="false">false</option>
+          </select>
+          <label for="show-pay-button-dropdown">Hosted Pay Button</label>
+        </div>
         <div class="form-floating mb-3">
           <input type="text" class="form-control" id="appearance-input" value='{"colorTextPrimary": "black"}'>
-          <label for="appearance-input">Appearance</label>
+          <label for="appearance-input">Styling</label>
         </div>
         <div style="font-family: monospace; font-size: small;">Request to /payment-sessions</div>
         <textarea class="form-control" id="req-textarea" rows="20" style="font-family: monospace; font-size: x-small;"></textarea>
@@ -88,9 +95,10 @@
           <div class="payments-container">
               <div id="payments-element"></div>
           </div>
-          <pre><span id="error-message" style="font-family: monospace; font-size: x-small;"></span></pre>
-          <span id="successful-payment-message"></span>
         </form>
+        <button type="button" class="btn btn-primary btn-sm mt-2 mb-1 invisible w-100" id="merchant-owned-pay-button" disabled>
+          <span>Merchant's Pay Button</span>
+        </button>
         <table class="table table-sm">
           <thead id="events-table-head">
           </thead>

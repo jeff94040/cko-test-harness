@@ -34,7 +34,8 @@ applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
     headers: {'Content-Type': 'application/json'},
     agent: httpsAgent
   })).json()
-  console.log(`validate session response: ${JSON.stringify(validateSessionResponse)}`)
+  console.log('validate session response:')
+  console.log(validateSessionResponse)
 
   res.status(200).json(validateSessionResponse)
 })
@@ -47,14 +48,17 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
     method: 'POST',
     body: JSON.stringify({
       'type': 'applepay',
-      'token_data': req.body.token.paymentData
+      'token_data': req.body.payment.token.paymentData
     }),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `${process.env.CKO_NAS_PUBLIC_KEY}`
     }
   })).json()
-  console.log(`create token response: ${JSON.stringify(createTokenResponse)}`)
+  console.log('req.body:')
+  console.log(req.body)
+  console.log('create token response:')
+  console.log(createTokenResponse)
 
   // apple pay - submit payment
   const paymentResponse = await (await fetch('https://api.sandbox.checkout.com/payments', {
@@ -62,7 +66,14 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
     body: JSON.stringify({
       'source': {
         'type': 'token',
-        'token': createTokenResponse.token
+        'token': createTokenResponse.token,
+        'billing_address':{
+          'address_line1': req.body.payment.billingContact.addressLines[0],
+          'city': req.body.payment.billingContact.locality,
+          'state': req.body.payment.billingContact.administrativeArea,
+          'zip': req.body.payment.billingContact.postalCode,
+          'country': req.body.payment.billingContact.countryCode
+        }
       },
       'amount': 300,
       'currency': 'USD',
@@ -74,7 +85,8 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
       'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
     }
   })).json()
-  console.log(`payment response: ${JSON.stringify(paymentResponse)}`)
+  console.log('payment response:')
+  console.log(paymentResponse)
 
   res.status(200).json(paymentResponse)
 })

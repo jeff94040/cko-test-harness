@@ -23,6 +23,8 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     merchantCapabilities: ['supports3DS'],
     supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
     countryCode: 'US',
+    requiredBillingContactFields: ["postalAddress"],
+    billingContact: {givenName: "CKO Office", addressLines: ["40 W 10th Avenue"], locality: "New York", postalCode: "10014", administrativeArea: "NY", country: "US"},
     total: {label: "Jeff's Test Account", amount: '3.00'},
     lineItems: [{label: 'Widget A', amount: '1.00'}, {label: 'Widget B', amount: '2.00'}],
     currencyCode: 'USD',
@@ -49,7 +51,7 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     const paymentResponse = await (await fetch('/apple-pay-payment', {
       method: 'POST',
       body: JSON.stringify({
-        token: event.payment.token
+        payment: event.payment
       }),
       headers: {'Content-Type': 'application/json'}
     })).json()
