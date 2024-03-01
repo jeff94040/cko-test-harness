@@ -43,6 +43,9 @@ applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
 // apple pay - request payment
 applePayRouter.post('/apple-pay-payment', async (req, res) => {
 
+  console.log('req.body.payment:')
+  console.log(req.body.payment)
+
   // apple pay - create cko token
   const createTokenResponse = await (await fetch('https://api.sandbox.checkout.com/tokens', {
     method: 'POST',
@@ -55,8 +58,6 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
       'Authorization': `${process.env.CKO_NAS_PUBLIC_KEY}`
     }
   })).json()
-  console.log('req.body:')
-  console.log(req.body)
   console.log('create token response:')
   console.log(createTokenResponse)
 
@@ -73,7 +74,15 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
           'state': req.body.payment.billingContact.administrativeArea,
           'zip': req.body.payment.billingContact.postalCode,
           'country': req.body.payment.billingContact.countryCode
+        },
+        'phone': {
+          'country_code': '1',
+          'number': req.body.payment.shippingContact.phoneNumber
         }
+      },
+      'customer': {
+        'name': req.body.payment.shippingContact.givenName,
+        'email': req.body.payment.shippingContact.emailAddress
       },
       'amount': 300,
       'currency': 'USD',

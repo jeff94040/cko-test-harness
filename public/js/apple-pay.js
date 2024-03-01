@@ -1,3 +1,5 @@
+import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
+
 // determine level of device, browser, and wallet support for Apple Pay and display the appropriate results
 if (!window.ApplePaySession) {
   document.querySelector('#apple-pay-availability').innerHTML = 'This browser does not support Apple Pay. Try Safari on any device or Chrome on iOS.'
@@ -24,7 +26,20 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
     countryCode: 'US',
     requiredBillingContactFields: ["postalAddress"],
-    billingContact: {givenName: "CKO Office", addressLines: ["40 W 10th Avenue"], locality: "New York", postalCode: "10014", administrativeArea: "NY", country: "US"},
+    requiredShippingContactFields: ["name", "phone", "email"],
+    billingContact: {
+      givenName: faker.person.fullName(), 
+      addressLines: [faker.location.streetAddress()], 
+      locality: faker.location.city(), 
+      postalCode: faker.location.zipCode(), 
+      administrativeArea: faker.location.state(), 
+      country: "US"
+    },
+    shippingContact: {
+      givenName: faker.person.fullName(), 
+      phoneNumber: faker.phone.number('4##-###-####'),
+      emailAddress: faker.internet.email()
+    },
     total: {label: "Jeff's Test Account", amount: '3.00'},
     lineItems: [{label: 'Widget A', amount: '1.00'}, {label: 'Widget B', amount: '2.00'}],
     currencyCode: 'USD',
