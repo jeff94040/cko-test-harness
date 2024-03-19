@@ -21,6 +21,7 @@ else{
 // when user clicks the apple pay button, we must create/begin an apple pay session, validate the merchant, and submit a payment
 document.querySelector('apple-pay-button').addEventListener('click', () => {
   // create session
+  console.log('Creating ApplePaySession()')
   var applePaySession = new ApplePaySession(14, {
     merchantCapabilities: ['supports3DS'],
     supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
@@ -45,10 +46,14 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     currencyCode: 'USD',
   })
   // begin session
+  console.log('Calling ApplePaySession.begin():')
   applePaySession.begin()
 
   // validate merchant
   applePaySession.onvalidatemerchant = async (event) => {
+    console.log('ApplePaySession.onValidateMerchant() callback details:')
+    console.log(event)
+    console.log('Asking server to validate the session...')
     const validateSessionResponse = await (await fetch('/apple-pay-validate-session', {
       method: 'POST',
       body: JSON.stringify({
@@ -56,13 +61,20 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
       }),
       headers: {'Content-Type': 'application/json'}
     })).json()
-    console.log( `validate session response: ${JSON.stringify(validateSessionResponse)}`)
-    applePaySession.completeMerchantValidation(validateSessionResponse)
+    console.log('Validate session response from server:')
+    console.log(validateSessionResponse)
+    console.log('Calling completeMerchantValidation():')
+    var foo = applePaySession.completeMerchantValidation(validateSessionResponse)
+    console.log('foo:')
+    console.log(foo)
   }
 
   // payment authorized by user
   applePaySession.onpaymentauthorized = async (event) => {
     // submit payment
+    console.log('ApplePaySession.onpaymentauthorized() callback details:')
+    console.log(event)
+    console.log('Asking server to run the payment...')
     const paymentResponse = await (await fetch('/apple-pay-payment', {
       method: 'POST',
       body: JSON.stringify({
@@ -73,6 +85,8 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
 
     // update session w/ payment results
     document.querySelector('#apple-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
+    console.log('Server response from running the payment:')
+    console.log(paymentResponse)
 
     applePaySession.completePayment(paymentResponse.approved === true ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE)
   }

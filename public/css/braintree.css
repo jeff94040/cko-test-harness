@@ -1,0 +1,23 @@
+#card-number {
+  height: 24px;
+}
+
+#card-number.braintree-hosted-fields-focused {
+  border-color: #777;
+}
+
+#card-number.braintree-hosted-fields-invalid {
+  border-color: tomato;
+}
+
+#card-number.braintree-hosted-fields-valid {
+  border-color: limegreen;
+}
+
+#cvv {
+  height: 24px;
+}
+
+#expiration-date {
+  height: 24px;
+}

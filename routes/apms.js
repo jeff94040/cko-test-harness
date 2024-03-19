@@ -1,7 +1,7 @@
-import dotenv, { parse } from 'dotenv'; 
-import express from 'express';
-import fetch from 'node-fetch';
-import { generateReference } from '../util.js';
+import dotenv from 'dotenv'
+import express from 'express'
+import {faker} from '@faker-js/faker'
+import fetch from 'node-fetch'
 
 const apmsRouter = express.Router();
 
@@ -10,7 +10,7 @@ dotenv.config();
 apmsRouter.post('/create-apm-url', async (req, res) => {
 
   const apm = req.body.source.type
-  req.body.reference = generateReference(6)
+  req.body.reference = `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`
   req.body.success_url = process.env.SUCCESS_URL
   req.body.failure_url = process.env.FAILURE_URL
   req.body.capture = 'true'
@@ -26,7 +26,6 @@ apmsRouter.post('/create-apm-url', async (req, res) => {
     req.body.processing_channel_id = process.env.CKO_EEA_PROCESSING_CHANNEL_ID
   else
     req.body.processing_channel_id = process.env.CKO_NAS_PROCESSING_CHANNEL_ID 
-
 
   var options = {
     method: 'POST', 

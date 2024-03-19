@@ -74,7 +74,7 @@ async function renderPaymentComponents() {
     if(paymentSession.id){
       const cko = await CheckoutWebComponents({
         //required configs
-        paymentSession,
+        paymentSession: paymentSession,
         publicKey: public_key,
         //optional configs
         environment: 'sandbox',
@@ -118,7 +118,6 @@ async function renderPaymentComponents() {
     resTextArea.innerHTML = 'HTTP 400 - Bad Request (Malformed JSON)'
     console.log(f)
   }
-
 }
 
 function updateEventsTableBody(eventName, eventPayload){

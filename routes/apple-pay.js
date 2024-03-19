@@ -1,25 +1,25 @@
-import dotenv from 'dotenv'; 
-import express from 'express';
-import fetch from 'node-fetch';
-import fs from 'fs';
-import https from 'node:https';
-import { generateReference } from '../util.js';
+import dotenv from 'dotenv'
+import express from 'express'
+import {faker} from '@faker-js/faker'
+import fetch from 'node-fetch'
+import fs from 'fs'
+import https from 'node:https'
 
 const applePayRouter = express.Router();
 
 //import config props from .env file
 dotenv.config();
 
-// apple pay - return merchant id 
+// Apple Pay - Return Apple Pay Merchant ID
 applePayRouter.get('/apple-pay-merchant-id', (req, res) => {
   res.send(process.env.APPLE_PAY_MERCHANT_ID)
 })
 
-// apple pay - create custom agent and validate session
+// Apple Pay - Request an Apple Pay Payment Session
 applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
 
   const httpsAgent = new https.Agent({
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, 
     cert: fs.readFileSync(process.env.APPLE_PAY_CERTIFICATE),
     key: fs.readFileSync(process.env.APPLE_PAY_KEY)
   })
@@ -29,6 +29,7 @@ applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
     body: JSON.stringify({
       merchantIdentifier: process.env.APPLE_PAY_MERCHANT_ID,
       domainName: process.env.APPLE_PAY_DOMAIN,
+      //domainName: 'michaeltaylor.io',
       displayName: process.env.APPLE_PAY_DISPLAY_NAME
     }),
     headers: {'Content-Type': 'application/json'},
@@ -86,7 +87,7 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
       },
       'amount': 300,
       'currency': 'USD',
-      'reference': `REF-${generateReference(6)}`,
+      'reference': `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
       'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
     }),
     headers: {

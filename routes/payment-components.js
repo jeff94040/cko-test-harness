@@ -1,7 +1,6 @@
-import dotenv from 'dotenv'; 
-import express from 'express';
-import fetch from 'node-fetch';
-import { generateReference } from '../util.js';
+import dotenv from 'dotenv'
+import express from 'express'
+import fetch from 'node-fetch'
 
 const paymentComponentsRouter = express.Router();
 

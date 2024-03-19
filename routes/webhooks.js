@@ -1,6 +1,6 @@
-import crypto from 'crypto';
-import express from 'express';
-import mongoose from 'mongoose';
+import crypto from 'crypto'
+import express from 'express'
+import mongoose from 'mongoose'
 
 const webhooksRouter = express.Router();
 

@@ -1,6 +1,6 @@
-import express from 'express';
+import express from 'express'
 
-const siftRouter = express.Router();
+const siftRouter = express.Router()
 
 siftRouter.get('/sift/:property', (req, res) => {
   if (req.params.property === 'beacon-key')
@@ -11,4 +11,4 @@ siftRouter.get('/sift/:property', (req, res) => {
     res.status(400)
 })
 
-export {siftRouter}; 
+export {siftRouter}

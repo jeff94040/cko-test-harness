@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import fetch from 'node-fetch'; 
-import { generateReference } from '../util.js';
+import dotenv from 'dotenv'
+import express from 'express'
+import {faker} from '@faker-js/faker'
+import fetch from 'node-fetch' 
 
 //import config props from .env file
 dotenv.config();
@@ -71,7 +71,7 @@ plaidAchRouter.post('/plaid/access-token', async (req, res) => {
       },
       amount: 4500,
       currency: 'USD',
-      reference: `REF-${generateReference(6)}`,
+      reference: `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
       processing_channel_id: process.env.CKO_NAS_PROCESSING_CHANNEL_ID
     }),
     headers: {
