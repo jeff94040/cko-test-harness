@@ -52,4 +52,25 @@ apmsRouter.post('/create-apm-url', async (req, res) => {
 
 })
 
+apmsRouter.post('/run-apm-payment', async (req, res) => {
+
+  console.log(`payment_context_id: ${req.paypalPaymentContext}`)
+  console.log(`processing_channel_id: ${process.env.CKO_NAS_PROCESSING_CHANNEL_ID}`)
+
+  const response = await (await fetch('https://api.sandbox.checkout.com/payments', {
+      method: 'POST', 
+      body: JSON.stringify({
+        'payment_context_id': req.body.paypalPaymentContext,
+        'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+      }
+  })).json()
+  
+  res.status(200).json(response)
+
+})
+
 export {apmsRouter}; 

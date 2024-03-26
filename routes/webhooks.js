@@ -34,8 +34,8 @@ db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_
 webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
 
   console.log(`received ${req.params.accountStructure} event notification...`);
-  //console.log(req.headers);
-  //console.log(req.body);
+  console.log(req.headers);
+  console.log(req.body);
 
   // Verify authenticity of CKO event notification
 

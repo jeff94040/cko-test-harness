@@ -13,10 +13,12 @@
 
         <div id="paypal-button-container" style="width: 250px;"></div>
         <!-- Sample PayPal credentials (client-id) are included -->
-        <script src="https://www.paypal.com/sdk/js?client-id=AW-hPoLkmmu7u7Cu6cPf-kbGCz8YBLnAMUtDBfmqXQS0_XuIviDY13t6iOLIFzdtB3MHESU1jpbGgWNA&currency=USD&intent=capture&enable-funding=venmo&buyer-country=US&merchant-id=AFEU9UC6LY4FS" data-sdk-integration-source="integrationbuilder"></script>
+        <script src="https://www.paypal.com/sdk/js?client-id=AW-hPoLkmmu7u7Cu6cPf-kbGCz8YBLnAMUtDBfmqXQS0_XuIviDY13t6iOLIFzdtB3MHESU1jpbGgWNA&currency=USD&intent=capture&enable-funding=venmo&buyer-country=US&merchant-id=CTM2PE2LRYM8Y" data-partner-attribution-id="CheckoutLtd_PSP"></script>
         <script type="module" src="paypal.js"></script>
 
   </div>
+  <div class="mt-1" style="font-family: monospace; font-size: small">Response from /payments endpoint</div>
+  <textarea class="form-control" id="res-textarea" rows="20" style="font-family: monospace; font-size: x-small;" disabled></textarea>
   <%- include('bootstrap-js'); %>
 </body>
 
