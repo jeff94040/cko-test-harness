@@ -3,14 +3,18 @@
 
 <%- include('head', {title: "Plaid ACH"}); %>
 
-  <body class="bg-light">
+  <body>
 
     <%- include('navbar'); %>
 
     <div class="container-fluid">
-      <div class="mb-3">
-        <label for="plaid-link-token" class="form-label">Plaid Link Token:</label>
+      <div class="form-floating mb-3">
         <input style="width:500px" type="text" class="form-control" id="plaid-link-token">
+        <label for="plaid-link-token">Plaid Link Token</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input style="width:500px" type="text" class="form-control" id="amount" value='25000000'>
+        <label for="amount">Amount (in minor units)</label>
       </div>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" id="ach-authorization-checkbox">

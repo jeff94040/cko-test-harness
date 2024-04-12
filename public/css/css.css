@@ -1,4 +1,7 @@
-table thead tr th {font-family: monospace; font-size:x-small}
-table tr th {font-family: monospace; font-size:x-small}
-table tr td {font-family: monospace; font-size:x-small}
-.form-control {font-family: monospace; font-size: x-small;}
+body {background-color: var(--bs-light)}
+
+th, td {font-size:.75em; background-color: var(--bs-light) !important;}
+
+.form-control {font-family: var(--bs-font-monospace); font-size: .75em !important; margin-bottom: 1em}
+
+label {font-size: .875em;}

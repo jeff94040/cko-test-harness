@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('head', {title: "Frames"}); %>
+
+<body>
+  
+  <%- include('navbar'); %>
+  
+  <div class="container-fluid">
+    <!--
+    <input type="text" name="name">
+    <input type="text" name="address">
+    -->
+    <div class="card-frame mb-3"><!-- frame inserted here --></div>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Event</th>
+          <th scope="col">Payload</th>
+        </tr>
+      </thead>
+      <tbody id="events-table-body">
+      </tbody>
+    </table>
+  </div>
+  
+  <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
+  <script type="module" src="frames.js"></script>
+  <%- include('bootstrap-js'); %>
+
+</body>
+</html>

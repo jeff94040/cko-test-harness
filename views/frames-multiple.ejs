@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <%- include('head', {title: "Frames"}); %>
+  
+  <body>
+    
+    <%- include('navbar'); %>
+    
+    <div class="container-fluid">
+      <div style="float: left;">
+      
+        <div class="input-container card-number">
+          <div class="icon-container"> <img id="icon-card-number" src="images/card-icons/card.svg" alt="PAN"> </div>
+          <div class="card-number-frame"></div>
+          <div class="icon-container payment-method"> <img id="logo-payment-method" alt=""> </div>
+          <div class="icon-container"> <img id="icon-card-number-error" src="images/card-icons/error.svg" alt=""> </div>
+        </div>
+        <div class="date-and-code">
+          <div>
+            <div class="input-container expiry-date">
+              <div class="icon-container"> <img id="icon-expiry-date" src="images/card-icons/exp-date.svg" alt="Expiry date"> </div>
+              <div class="expiry-date-frame"></div>
+              <div class="icon-container"> <img id="icon-expiry-date-error" src="images/card-icons/error.svg" alt=""> </div>
+            </div>
+          </div>
+          <div>
+            <div class="input-container cvv">
+              <div class="icon-container"> <img id="icon-cvv" src="images/card-icons/cvv.svg" alt="CVV"> </div>
+              <div class="cvv-frame"></div>
+              <div class="icon-container"> <img id="icon-cvv-error" src="images/card-icons/error.svg" alt=""> </div>
+            </div>
+          </div>
+        </div>
+      
+      </div>
+
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Event</th>
+            <th scope="col">Payload</th>
+          </tr>
+        </thead>
+        <tbody id="events-table-body">
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
+    <script type="module" src="frames.js"></script>
+    <%- include('bootstrap-js'); %>
+
+  </body>
+</html>

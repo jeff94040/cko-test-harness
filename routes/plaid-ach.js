@@ -69,7 +69,7 @@ plaidAchRouter.post('/plaid/access-token', async (req, res) => {
               'last_name': 'Doe'
           }
       },
-      amount: 4500,
+      amount: req.body.amount,
       currency: 'USD',
       reference: `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
       processing_channel_id: process.env.CKO_NAS_PROCESSING_CHANNEL_ID

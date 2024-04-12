@@ -3,7 +3,7 @@
 
 <%- include('head', {title: "Payment Components"}); %>
 
-<body class="bg-light">
+<body>
 
   <%- include('navbar'); %>
 
@@ -49,10 +49,12 @@
           <input type="text" class="form-control" id="appearance-input" value='{"colorPrimary": "black"}'>
           <label for="appearance-input">Appearance</label>
         </div>
-        <div style="font-family: monospace; font-size: small;">Request to /payment-sessions</div>
-        <textarea class="form-control" id="req-textarea" rows="20" style="font-family: monospace; font-size: x-small;"></textarea>
-        <div class="mt-1" style="font-family: monospace; font-size: small">Response from /payment-sessions</div>
-        <textarea class="form-control" id="res-textarea" rows="20" style="font-family: monospace; font-size: x-small;" disabled></textarea>
+        
+        <label for="req-textarea">Request to /payment-sessions</label>
+        <textarea class="form-control" id="req-textarea" rows="20"></textarea>
+
+        <label for="res-textarea">Response from /payment-sessions</label>
+        <textarea class="form-control" id="res-textarea" rows="20" disabled></textarea>
       </div>
       <div class="col">
         <form id="payment-form">

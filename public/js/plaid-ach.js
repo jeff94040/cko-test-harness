@@ -32,7 +32,8 @@ document.querySelector('#ach-submit-button').addEventListener('click', () => {
         method: 'POST',
         body: JSON.stringify({
           public_token: public_token,
-          account_id: metadata.accounts[0].id
+          account_id: metadata.accounts[0].id,
+          amount: document.querySelector('#amount').value
         }),
         headers: {'Content-Type': 'application/json'}
       })
