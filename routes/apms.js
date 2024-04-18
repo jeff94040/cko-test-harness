@@ -27,7 +27,7 @@ apmsRouter.post('/create-apm-url', async (req, res) => {
   else
     req.body.processing_channel_id = process.env.CKO_NAS_PROCESSING_CHANNEL_ID 
 
-  var options = {
+  const options = {
     method: 'POST', 
     body: JSON.stringify(req.body),
     headers: {
@@ -36,39 +36,46 @@ apmsRouter.post('/create-apm-url', async (req, res) => {
     }
   }
 
-  console.log(`url: ${url}`)
+  console.log(`\nSubmitting request to: ${url}`)
   console.log(options)
 
-  const httpResponse = await fetch(url, options)
-  console.log(httpResponse)
+  const response = await (await fetch(url, options)).json()
 
-  const parsedResponse = await httpResponse.json()
-  console.log(parsedResponse)
+  console.log(`\nReceived response from: ${url} `)
+  console.log(response)
 
-  //const response = await (await fetch(url, options)).json()
-  console.log(`create apm url response: ${JSON.stringify(parsedResponse)}`);
-
-  res.status(200).json(parsedResponse)
+  res.status(200).json(response)
 
 })
 
 apmsRouter.post('/run-apm-payment', async (req, res) => {
 
-  console.log(`payment_context_id: ${req.paypalPaymentContext}`)
-  console.log(`processing_channel_id: ${process.env.CKO_NAS_PROCESSING_CHANNEL_ID}`)
+  // wait 60 seconds to observe webhook timing
+  //console.log('waiting 30 seconds...')
+  //await new Promise(resolve => setTimeout(resolve, 30000));
 
-  const response = await (await fetch('https://api.sandbox.checkout.com/payments', {
-      method: 'POST', 
-      body: JSON.stringify({
-        'payment_context_id': req.body.paypalPaymentContext,
-        'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
-      }
-  })).json()
+  const url = 'https://api.sandbox.checkout.com/payments'
+
+  const options = {
+    method: 'POST', 
+    body: JSON.stringify({
+      'payment_context_id': req.body.paypalPaymentContext,
+      'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+    }
+  }
+
+  console.log(`\nSubmitting request to: ${url}`)
+  console.log(options)
+
+  const response = await (await fetch(url, options)).json()
   
+  console.log(`\nReceived response from: ${url} `)
+  console.log(response)
+
   res.status(200).json(response)
 
 })

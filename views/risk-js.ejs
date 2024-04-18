@@ -7,17 +7,22 @@
 
   <%- include('navbar'); %>
 
-  <div class="m-3">
-    <label for="public-key" class="form-label">Public Key:</label>
-    <input style="width:500px" type="text" class="form-control" id="public-key">
+  <div class="container-fluid">
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="public-key" style="width: 25em">
+        <label for="public-key">Public Key</label>
+      </div>
+      <div class="mb-3">
+        <button type="button" class="btn btn-secondary" id="button">Generate Device Session</button>
+      </div>
+      <div style="font-family: monospace; white-space: nowrap;" id="output"></div> 
   </div>
-  <div class="m-3">
-    <button type="button" class="btn btn-secondary" id="button">Generate Device Session</button>
-  </div>
-  <div class="m-3" style="font-family: monospace; white-space: nowrap;" id="output"></div> 
+
   <script id="risk-js" async src="https://risk.sandbox.checkout.com/cdn/risk/1/risk.js"></script>
   <script async type="module" src="/risk-js.js"></script>
+  
   <%- include('bootstrap-js'); %>
+
 </body>
 
 </html> 

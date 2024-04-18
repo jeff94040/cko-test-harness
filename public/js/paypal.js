@@ -1,12 +1,3 @@
-/* 
-
-merchant-id doesn't appear to be required in the PP JS SDK import
-merchant-id, if specified in PP JS SDK import, must align w/ create order, otherwise an error occurs (expected) as both are tied to the seller
-merchant-id provided by CKO onboarding, if specified in the PP JS SDK import (&merchant-id=AFEU9UC6LY4FS) following a UPAPI create order, prevents display of Venmo button
-merchant-id provided directly by PP, if specified in the PP JS SDK import (&merchant-id=CTM2PE2LRYM8Y), correctly displays Venmo button
-
-*/
-
 var paypalPaymentContext = '';
 
 const paypalButtonsComponent = paypal.Buttons({
@@ -23,21 +14,21 @@ const paypalButtonsComponent = paypal.Buttons({
       const response = await (await fetch('/create-apm-url', {
         method: 'POST',
         body: JSON.stringify({
-            source: {
-                type: 'paypal'
+          source: {
+            type: 'paypal'
+          },
+          items: [
+            {
+              name: 'laptop',
+              unit_price: 2000,
+              quantity: 1
             },
-            items: [
-                {
-                    name: 'laptop',
-                    unit_price: 2000,
-                    quantity: 1
-                },
-                {
-                    name: 'desktop',
-                    unit_price: 1000,
-                    quantity: 1
-                }        
-            ],
+            {
+              name: 'desktop',
+              unit_price: 1000,
+              quantity: 1
+            }
+          ],
           currency: 'USD',
           amount: 3000
         }),
@@ -69,16 +60,7 @@ const paypalButtonsComponent = paypal.Buttons({
       console.log('/payments response:')
       console.log(response)
 
-      const elem = document.querySelector('#res-textarea')
-      elem.innerHTML = JSON.stringify(response, null, 2)
-      /*
-      const captureOrderHandler = (details) => {
-          const payerName = details.payer.name.given_name;
-          console.log('Transaction completed');
-      };
-      
-      return actions.order.capture().then(captureOrderHandler);
-      */
+      document.querySelector('#response-pre').textContent = JSON.stringify(response, null, 2)
 
     },
 

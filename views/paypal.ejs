@@ -8,16 +8,14 @@
   <%- include('navbar'); %>
   
   <div class="container-fluid">
-
-    <!-- copied from https://developer.paypal.com/demo/checkout/#/pattern/server -->
-
-    <div id="paypal-button-container" style="width: 250px;"></div>
-    <!-- Sample PayPal credentials (client-id) are included -->
-    <script src="https://www.paypal.com/sdk/js?client-id=sb&intent=capture&buyer-country=US&merchant-id=CTM2PE2LRYM8Y" data-partner-attribution-id="CheckoutLtd_PSP"></script>
-
+    <div style="float:left;">
+      <div id="paypal-button-container"></div>
+      <script src="https://www.paypal.com/sdk/js?client-id=sb&intent=capture&buyer-country=US&merchant-id=CTM2PE2LRYM8Y" data-partner-attribution-id="CheckoutLtd_PSP"></script>
+    </div>
+    <div style="float:left; clear:both">
+      <pre class="form-control" id="response-pre"></pre>
+    </div>
   </div>
-  <div class="mt-1" style="font-family: monospace; font-size: small">Response from /payments endpoint</div>
-  <textarea class="form-control" id="res-textarea" rows="20" style="font-family: monospace; font-size: x-small;" disabled></textarea>
 
   <%- include('bootstrap-js'); %>
   <script type="module" src="paypal.js"></script>
