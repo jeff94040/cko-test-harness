@@ -6,7 +6,7 @@ import {plaidAchRouter} from './routes/plaid-ach.js';
 import {upapiRouter} from './routes/upapi.js';
 import {webhooksRouter} from './routes/webhooks.js';
 import {siftRouter} from './routes/sift.js';
-import {paymentComponentsRouter} from './routes/payment-components.js';
+import {flowRouter} from './routes/flow.js';
 
 import dotenv from 'dotenv'; 
 
@@ -38,7 +38,7 @@ app.get('/giropay', (req, res) => {res.render('giropay')})
 app.get('/iframe-wrapper', (req, res) => {res.render('iframe-wrapper')})
 app.get('/', (req, res) => {res.render('index')})
 app.get('/pan-generator', (req, res) => {res.render('pan-generator')})
-app.get('/payment-components', (req, res) => {res.render('payment-components')})
+app.get('/flow', (req, res) => {res.render('flow')})
 app.get('/paypal', (req, res) => {res.render('paypal')})
 app.get('/plaid-ach', (req, res) => {res.render('plaid-ach')})
 app.get('/risk-js', (req, res) => {res.render('risk-js')})
@@ -52,7 +52,7 @@ app.use('/', plaidAchRouter);
 app.use('/', upapiRouter);
 app.use('/', webhooksRouter);
 app.use('/', siftRouter)
-app.use('/', paymentComponentsRouter);
+app.use('/', flowRouter);
 
 // Set folder location for static content
 //app.use(express.static('public/html', {extensions: 'html'}));

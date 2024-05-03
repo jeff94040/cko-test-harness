@@ -2,12 +2,12 @@ import dotenv from 'dotenv'
 import express from 'express'
 import fetch from 'node-fetch'
 
-const paymentComponentsRouter = express.Router();
+const flowRouter = express.Router();
 
 dotenv.config();
 
 // create payment session
-paymentComponentsRouter.post('/create-payment-session', async (req, res) => {
+flowRouter.post('/create-payment-session', async (req, res) => {
 
   const paymentSession = await (await fetch('https://api.sandbox.checkout.com/payment-sessions', {
     method: 'POST',
@@ -25,4 +25,4 @@ paymentComponentsRouter.post('/create-payment-session', async (req, res) => {
 
 });
 
-export {paymentComponentsRouter}; 
+export {flowRouter}; 
