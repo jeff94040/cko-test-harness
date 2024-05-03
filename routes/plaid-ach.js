@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import express from 'express'
-import {faker} from '@faker-js/faker'
+import {Faker, faker} from '@faker-js/faker'
 import fetch from 'node-fetch' 
 
 //import config props from .env file
@@ -60,12 +60,14 @@ plaidAchRouter.post('/plaid/access-token', async (req, res) => {
     method: 'POST',
     body: JSON.stringify({
       source: {
-          'type': 'plaid',
+          'type': 'provider_token',
+          //'type': 'plaid',
+          'payment_method': 'ach',
           'token': processorTokenResponse.processor_token,
           'account_holder': {
-              'type': 'Individual',
-              'first_name': 'John',
-              'last_name': 'Doe'
+              'type': 'individual',
+              'first_name': faker.person.firstName(),
+              'last_name': faker.person.lastName()
           }
       },
       amount: req.body.amount,

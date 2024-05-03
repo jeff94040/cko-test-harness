@@ -29,11 +29,11 @@ apmsRouter.post('/create-apm-url', async (req, res) => {
 
   const options = {
     method: 'POST', 
-    body: JSON.stringify(req.body),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
-    }
+    },
+    body: JSON.stringify(req.body)
   }
 
   console.log(`\nSubmitting request to: ${url}`)
@@ -58,14 +58,14 @@ apmsRouter.post('/run-apm-payment', async (req, res) => {
 
   const options = {
     method: 'POST', 
-    body: JSON.stringify({
-      'payment_context_id': req.body.paypalPaymentContext,
-      'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
-    }),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
-    }
+    },
+    body: JSON.stringify({
+      'payment_context_id': req.body.paypalPaymentContext,
+      'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
+    })
   }
 
   console.log(`\nSubmitting request to: ${url}`)
