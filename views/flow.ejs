@@ -45,11 +45,15 @@
           </select>
           <label for="show-pay-button-dropdown">Pay Button</label>
         </div>
-        <div class="form-floating mb-3">
+        <div class="form-floating">
           <input type="text" class="form-control" id="appearance-input" value='{"colorPrimary": "black"}'>
           <label for="appearance-input">Appearance</label>
         </div>
-        
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control" id="translations-input" value='{"en": {"pay_button.pay": "Submit"}}'>
+          <label for="translations-input">Translations</label>
+        </div>
+
         <label for="req-textarea">Request to /payment-sessions</label>
         <textarea class="form-control" id="req-textarea" rows="20"></textarea>
 
@@ -57,11 +61,7 @@
         <textarea class="form-control" id="res-textarea" rows="20" disabled></textarea>
       </div>
       <div class="col">
-        <form id="payment-form">
-          <div class="payments-container">
-              <div id="payments-element"></div>
-          </div>
-        </form>
+        <div id="flow-element"><!-- Flow content rendered here --></div>
         <button type="button" class="btn btn-primary btn-sm mt-2 mb-1 invisible w-100" id="merchant-owned-pay-button" disabled>
           <span>Merchant's Pay Button</span>
         </button>

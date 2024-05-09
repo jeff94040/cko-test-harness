@@ -2,6 +2,8 @@ body {background-color: var(--bs-light)}
 
 th, td {font-size:.75em; background-color: var(--bs-light) !important;}
 
-.form-control {font-family: var(--bs-font-monospace); font-size: .75em !important; margin-bottom: 1em}
+.form-control {font-family: var(--bs-font-monospace); font-size: .75em !important;}
+
+.form-floating {margin-bottom: .25em;}
 
 label {font-size: .875em;}

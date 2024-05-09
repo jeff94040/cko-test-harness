@@ -3,11 +3,12 @@ import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
 const localeDropdown = document.querySelector('#locale-dropdown')
 const showPayButtonDropdown = document.querySelector('#show-pay-button-dropdown')
 const appearanceInput = document.querySelector('#appearance-input')
+const translationsInput = document.querySelector('#translations-input')
 const reqTextArea = document.querySelector('#req-textarea')
 const resTextArea = document.querySelector('#res-textarea')
 const refreshPaymentComponentsButton = document.querySelector('#mount-pc-button')
 const merchantOwnedPayButton = document.querySelector('#merchant-owned-pay-button')
-const paymentsElement = document.querySelector('#payments-element')
+const flowElement = document.querySelector('#flow-element')
 const eventsTableBody = document.querySelector('#events-table-body')
 const eventsTableHead = document.querySelector('#events-table-head')
 
@@ -59,7 +60,7 @@ async function renderPaymentComponents() {
     payments.unmount()
 
   // clear existing content
-  paymentsElement.innerHTML = ''
+  flowElement.innerHTML = ''
   eventsTableBody.innerHTML = ''
   eventsTableHead.innerHTML = ''
   merchantOwnedPayButton.classList.add('invisible')
@@ -78,7 +79,7 @@ async function renderPaymentComponents() {
         publicKey: public_key,
         //optional configs
         environment: 'sandbox',
-        // translations: {}
+        translations: JSON.parse(translationsInput.value),
         appearance: JSON.parse(appearanceInput.value),
         locale: localeDropdown.value,
         // javascript callback methods
@@ -109,7 +110,7 @@ async function renderPaymentComponents() {
       })
       payments = cko.create('payments', {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
       console.log(`isAvailable(): ${await payments.isAvailable()}`)
-      payments.mount('#payments-element')
+      payments.mount(flowElement)
       eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"  
     }
   }
