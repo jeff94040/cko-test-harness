@@ -60,9 +60,9 @@ plaidAchRouter.post('/plaid/access-token', async (req, res) => {
     method: 'POST',
     body: JSON.stringify({
       source: {
-          'type': 'provider_token',
-          //'type': 'plaid',
-          'payment_method': 'ach',
+          //'type': 'provider_token',
+          'type': 'plaid',
+          //'payment_method': 'ach',
           'token': processorTokenResponse.processor_token,
           'account_holder': {
               'type': 'individual',

@@ -4,13 +4,15 @@ cko-test-harness is a web implementation of Checkout.com's UI-based products. Th
 
 ## Supported APIs & Services
 
-* Apple Pay
-* Frames
+* Apple Pay (Pay-ins & Payouts)
+* Flow
+* Frames (Single)
+* Frames (Multiple)
 * Hosted Payment Page
 * Payment Links
-* Payments
-* PayPal
+* PayPal / Venmo
 * Plaid ACH
+* Risk.js
 * Webhooks
 
 ## Prerequisites
@@ -43,15 +45,16 @@ MONGO_DB_PASSWORD=your_db_password
 MONGO_DB_NAME=your_db_name
 MONGO_DB_CLUSTER_DOMAIN=cluster0.3.gcos.mongodb.net
 
-# Checkout.com ABC keys
-CKO_ABC_PUBLIC_KEY=pk_test_xxx
-CKO_ABC_SECRET_KEY=sk_test_xxx
-
 # Checkout.com NAS keys
 CKO_NAS_SECRET_KEY=sk_sbox_xxx
 CKO_NAS_PUBLIC_KEY=pk_sbox_xxx
 CKO_NAS_PROCESSING_CHANNEL_ID=pc_xxx
+CKO_NAS_CURRENCY_ACCOUNT_ID=ca_xxx
 CKO_NAS_WEBHOOK_KEY=xxx...
+
+# Redirect URLs
+SUCCESS_URL=""
+FAILURE_URL=""
 
 # Plaid credentials
 PLAID_CLIENT_ID=...
@@ -63,6 +66,9 @@ APPLE_PAY_DOMAIN=...
 APPLE_PAY_DISPLAY_NAME=...
 APPLE_PAY_CERTIFICATE=...
 APPLE_PAY_KEY=...
+
+# EEA PC ID for EEA APMs (optional)
+CKO_EEA_PROCESSING_CHANNEL_ID
 ```
 
 ## Run the application

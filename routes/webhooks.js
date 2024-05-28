@@ -67,8 +67,10 @@ webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
   }
   else{
     console.log('signature mismatch...');
-    console.log('server signature: ' + server_signature);
-    console.log('client signature: ' + client_signature);
+    console.log(`hmac_password: ${hmac_password}`)
+    console.log(`server signature: ${server_signature}`);
+    console.log(`client signature: ${client_signature}`);
+    console.log(`stringified body: ${stringified_body}`)
   }
 
 });

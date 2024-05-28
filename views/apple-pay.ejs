@@ -9,7 +9,15 @@
 
   <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script>
 
-  <div class="m-3" id="apple-pay-availability"></div>
+  <div class="m-3" id="apple-pay-availability">
+    <div class="form-floating">
+      <select class="form-select form-select-sm" id="pay-in-or-payout">
+        <option value="pay-in" selected>Pay-in</option>
+        <option value="payout">Payout</option>
+      </select>
+      <label for="pay-in-or-payout">ApplePay Pay-in or Payout?</label>
+    </div>
+  </div>
   <div class="m-3" style="display: none" id="apple-pay-button">
     <style>
       apple-pay-button {

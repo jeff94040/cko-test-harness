@@ -1,5 +1,7 @@
 import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
 
+const payInOrPayout = document.querySelector('#pay-in-or-payout')
+
 // determine level of device, browser, and wallet support for Apple Pay and display the appropriate results
 if (!window.ApplePaySession) {
   document.querySelector('#apple-pay-availability').innerHTML = 'This browser does not support Apple Pay. Try Safari on any device or Chrome on iOS.'
@@ -74,21 +76,30 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     // submit payment
     console.log('ApplePaySession.onpaymentauthorized() callback details:')
     console.log(event)
-    console.log('Asking server to run the payment...')
-    const paymentResponse = await (await fetch('/apple-pay-payment', {
+
+    const url = payInOrPayout.value === 'pay-in' ? '/apple-pay-payment' : '/apple-pay-payout'
+    const options = {
       method: 'POST',
       body: JSON.stringify({
         payment: event.payment
       }),
       headers: {'Content-Type': 'application/json'}
-    })).json()
+    }
+
+    console.log('Asking server to run the payment...')
+    const paymentResponse = await (await fetch(url, options)).json()
 
     // update session w/ payment results
     document.querySelector('#apple-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
     console.log('Server response from running the payment:')
     console.log(paymentResponse)
 
-    applePaySession.completePayment(paymentResponse.approved === true ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE)
+    if (paymentResponse.approved === true || paymentResponse.status === 'Pending')
+      applePaySession.completePayment(ApplePaySession.STATUS_SUCCESS)
+    else
+      applePaySession.completePayment(ApplePaySession.STATUS_FAILURE)
+
+    //applePaySession.completePayment(paymentResponse.approved === true ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE)
   }
 
 })

@@ -108,7 +108,7 @@ async function renderPaymentComponents() {
           updateEventsTableBody('onError', error)
         }
       })
-      payments = cko.create('payments', {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
+      payments = cko.create('flow', {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
       console.log(`isAvailable(): ${await payments.isAvailable()}`)
       payments.mount(flowElement)
       eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"  

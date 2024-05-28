@@ -41,34 +41,75 @@ applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
   res.status(200).json(validateSessionResponse)
 })
 
+// apple pay - request payout
+applePayRouter.post('/apple-pay-payout', async (req, res) => {
+
+  const url = 'https://api.sandbox.checkout.com/payments'
+  const paymentToken = await requestToken(req.body.payment.token.paymentData)
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+    },    
+    body: JSON.stringify({
+      'source': {
+        'type': 'currency_account',
+        'id': `${process.env.CKO_NAS_CURRENCY_ACCOUNT_ID}`
+      },
+      'destination': {
+        'type': 'token',
+        'token': paymentToken,
+        'account_holder': {
+          'type': 'individual',
+          'first_name': req.body.payment.shippingContact.givenName.split(' ')[0],
+          'last_name': req.body.payment.shippingContact.givenName.split(' ')[1],
+          'billing_address':{
+            'address_line1': req.body.payment.billingContact.addressLines[0],
+            'city': req.body.payment.billingContact.locality,
+            'state': req.body.payment.billingContact.administrativeArea,
+            'zip': req.body.payment.billingContact.postalCode,
+            'country': req.body.payment.billingContact.countryCode
+          },
+        }
+      },
+      'instruction': {
+        'funds_transfer_type': 'FD'
+      },
+      'amount': 100,
+      'currency': 'USD',
+      'reference': `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
+      'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
+    })
+  }
+
+  console.log(`\nSubmitting request to: ${url}`)
+  console.log(options)
+
+  const response = await (await fetch(url, options)).json()
+
+  console.log(`\nReceived response from: ${url} `)
+  console.log(response)
+
+  res.status(200).json(response)
+})
+
 // apple pay - request payment
 applePayRouter.post('/apple-pay-payment', async (req, res) => {
 
-  console.log('req.body.payment:')
-  console.log(req.body.payment)
-
-  // apple pay - create cko token
-  const createTokenResponse = await (await fetch('https://api.sandbox.checkout.com/tokens', {
+  const url = 'https://api.sandbox.checkout.com/payments'
+  const paymentToken = await requestToken(req.body.payment.token.paymentData)
+  const options = {
     method: 'POST',
-    body: JSON.stringify({
-      'type': 'applepay',
-      'token_data': req.body.payment.token.paymentData
-    }),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `${process.env.CKO_NAS_PUBLIC_KEY}`
-    }
-  })).json()
-  console.log('create token response:')
-  console.log(createTokenResponse)
-
-  // apple pay - submit payment
-  const paymentResponse = await (await fetch('https://api.sandbox.checkout.com/payments', {
-    method: 'POST',
+      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+    },
     body: JSON.stringify({
       'source': {
         'type': 'token',
-        'token': createTokenResponse.token,
+        'token': paymentToken,
         'billing_address':{
           'address_line1': req.body.payment.billingContact.addressLines[0],
           'city': req.body.payment.billingContact.locality,
@@ -89,16 +130,46 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
       'currency': 'USD',
       'reference': `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
       'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
-    }),
+    })
+  }
+
+  console.log(`\nSubmitting request to: ${url}`)
+  console.log(options)
+
+  const response = await (await fetch(url, options)).json()
+
+  console.log(`\nReceived response from: ${url} `)
+  console.log(response)
+
+  res.status(200).json(response)
+})
+
+// Apple Pay - Request tok_xxx given encrypted payment data
+async function requestToken(paymentData){
+
+  const url = 'https://api.sandbox.checkout.com/tokens'
+
+  const options = {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
-    }
-  })).json()
-  console.log('payment response:')
-  console.log(paymentResponse)
+      'Authorization': `${process.env.CKO_NAS_PUBLIC_KEY}`
+    },
+    body: JSON.stringify({
+      'type': 'applepay',
+      'token_data': paymentData
+    })
+  }
 
-  res.status(200).json(paymentResponse)
-})
+  console.log(`\nSubmitting request to: ${url}`)
+  console.log(options)
+
+  // apple pay - create cko token
+  const response = await (await fetch(url, options)).json()
+  console.log(`\nReceived response from: ${url} `)
+  console.log(response)
+
+  return response.token
+}
 
 export {applePayRouter}; 
