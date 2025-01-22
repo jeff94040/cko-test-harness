@@ -198,14 +198,46 @@ const data = {
     }
   }
 }
+/*
+if (window.addEventListener) {
+  window.addEventListener("message", onMessage, false);        
+} 
+else if (window.attachEvent) {
+  window.attachEvent("onmessage", onMessage, false);
+}
+
+function onMessage(event) {
+  // Check sender origin to be trusted
+  if (event.origin !== "http://example.com") return;
+
+  var data = event.data;
+
+  if (typeof(window[data.func]) == "function") {
+      window[data.func].call(null, data.message);
+  }
+}
+*/
+
+// Parent window JS (i.e. parent.html)
+window.addEventListener('message', (event) => {
+  console.log(`Message from iframe: ${event.data}`)
+})
+
 
 // true when window is iframe
-if (window.document != window.parent.document){
+if (window.document !== window.parent.document){
   if(usp.has('cko-payment-id')) // HPP
     window.parent.location.href = `?cko-payment-id=${usp.get('cko-payment-id')}`;
-  else if(usp.has('cko-session-id')) // 3DS
-    window.parent.location.href = `?cko-session-id=${usp.get('cko-session-id')}`;
-  else // PL
+  else if(usp.has('cko-session-id')){ // 3DS
+    console.log(`window.location.href: ${window.location.href}`) // success or decline url
+    window.parent.postMessage('Hello from iframe!'); 
+    // Use target origin instead of *
+    
+    //const foo = ""
+    //window.parent.location.href = `?cko-session-id=${usp.get('cko-session-id')}`;
+    //parent.confirmRedirectURL(`?cko-session-id=${usp.get('cko-session-id')}`)
+  }
+    else // PL
     window.parent.location.href = '';
 }
 else{

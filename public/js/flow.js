@@ -4,6 +4,8 @@ const localeDropdown = document.querySelector('#locale-dropdown')
 const showPayButtonDropdown = document.querySelector('#show-pay-button-dropdown')
 const appearanceInput = document.querySelector('#appearance-input')
 const translationsInput = document.querySelector('#translations-input')
+const componentOptionsInput = document.querySelector('#component-options-input')
+const componentTypeInput = document.querySelector('#component-type-dropdown')
 const reqTextArea = document.querySelector('#req-textarea')
 const resTextArea = document.querySelector('#res-textarea')
 const refreshPaymentComponentsButton = document.querySelector('#mount-pc-button')
@@ -15,7 +17,7 @@ const eventsTableHead = document.querySelector('#events-table-head')
 var eventCounter = 0
 var payments
 var public_key = await (await fetch('/frames-key')).text()
-  
+
 reqTextArea.value = JSON.stringify({
   amount: faker.number.int({ min: 1000, max: 100000 }),
   currency: 'USD',
@@ -74,14 +76,13 @@ async function renderPaymentComponents() {
     // render payment components if a valid session id is returned from server
     if(paymentSession.id){
       const cko = await CheckoutWebComponents({
-        //required configs
-        paymentSession: paymentSession,
-        publicKey: public_key,
-        //optional configs
-        environment: 'sandbox',
-        translations: JSON.parse(translationsInput.value),
         appearance: JSON.parse(appearanceInput.value),
+        componentOptions: JSON.parse(componentOptionsInput.value),
+        environment: 'sandbox',
         locale: localeDropdown.value,
+        paymentSession: paymentSession, //required
+        publicKey: public_key, //required
+        translations: JSON.parse(translationsInput.value),
         // javascript callback methods
         onReady: async (_self) => {
           updateEventsTableBody('onReady()', {})
@@ -108,7 +109,7 @@ async function renderPaymentComponents() {
           updateEventsTableBody('onError', error)
         }
       })
-      payments = cko.create('flow', {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
+      payments = cko.create(componentTypeInput.value, {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
       console.log(`isAvailable(): ${await payments.isAvailable()}`)
       payments.mount(flowElement)
       eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"  
