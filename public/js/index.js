@@ -13,6 +13,7 @@ const response_visibility = document.querySelector('#response-visibility');
 const response_header = document.querySelector('#response-header');
 const response_body = document.querySelector('#response-body');
 const iframe = document.querySelector('#iframe');
+const iframe_div = document.querySelector('#i-frame-hidden-div')
 const modal_iframe = document.querySelector('#modal-iframe');
 
 var date = new Date();
@@ -339,6 +340,7 @@ submit_button.addEventListener('click', async () => {
         iframe.setAttribute('src', redirect_href);
         iframe.width = '350px';
         iframe.height = '386px';
+        iframe.removeAttribute('hidden')
       });
 
       // modal button

@@ -17,12 +17,16 @@ const eventsTableHead = document.querySelector('#events-table-head')
 var eventCounter = 0
 var payments
 var public_key = await (await fetch('/frames-key')).text()
+const amount = faker.number.int({ min: 1000, max: 100000 })
 
 reqTextArea.value = JSON.stringify({
-  amount: faker.number.int({ min: 1000, max: 100000 }),
+  amount: amount,
   currency: 'USD',
   reference: `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
   payment_type: 'Regular',
+  items: [{
+    name: "widget", unit_price: amount, quantity: 1
+  }],
   billing: {
     address: {
       country: 'US'
@@ -32,16 +36,19 @@ reqTextArea.value = JSON.stringify({
     name: faker.person.fullName(),
     email: faker.internet.email()
   },
-  success_url: 'https://cko.jeff94040.ddns.net',
-  failure_url: 'https://cko.jeff94040.ddns.net',
+  customer_retry: {
+    max_attempts: 5
+  },
+  enabled_payment_methods: ["card","applepay","googlepay","paypal"],
+  disabled_payment_methods: [],
+  success_url: 'https://cko.jeff94040.ddns.net/success',
+  failure_url: 'https://cko.jeff94040.ddns.net/failure',
   processing_channel_id: 'pc_i7u3hlih2nze7mq6digv3pemuq',
   payment_method_configuration: {
     card: {
       store_payment_details: 'enabled'
     }
   },
-  enabled_payment_methods: ['card', 'applepay', 'googlepay'],
-  disabled_payment_methods: [],
   capture: true
 }, null, 2)
 
@@ -110,9 +117,16 @@ async function renderPaymentComponents() {
         }
       })
       payments = cko.create(componentTypeInput.value, {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
-      console.log(`isAvailable(): ${await payments.isAvailable()}`)
-      payments.mount(flowElement)
-      eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"  
+
+      eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"
+
+      const isAvailable = await payments.isAvailable()
+      
+      updateEventsTableBody('isAvailable()', isAvailable)
+
+      if(isAvailable)
+        payments.mount(flowElement)
+        
     }
   }
   catch(f){
