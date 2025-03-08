@@ -47,6 +47,11 @@ app.get('/sift', (req, res) => {res.render('sift')})
 app.get('/success', (req, res) => {res.render('success')})
 app.get('/trustly', (req, res) => {res.render('trustly')})
 
+app.get('/apple-developer-merchantid-domain-association.txt', (req, res) => {res.sendFile('/home/jeff/apps/cko-test-harness/public/.well-known/apple-developer-merchantid-domain-association.txt')})
+
+app.get('/apple-developer-merchantid-domain-association', (req, res) => {res.sendFile('/home/jeff/apps/cko-test-harness/public/.well-known/apple-developer-merchantid-domain-association')})
+
+
 app.use('/', apmsRouter);
 app.use('/', applePayRouter);
 app.use('/', framesRouter);

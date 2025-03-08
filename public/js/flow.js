@@ -15,14 +15,14 @@ const eventsTableBody = document.querySelector('#events-table-body')
 const eventsTableHead = document.querySelector('#events-table-head')
 
 var eventCounter = 0
-var payments
+var component
 var public_key = await (await fetch('/frames-key')).text()
 const amount = faker.number.int({ min: 1000, max: 100000 })
 
 reqTextArea.value = JSON.stringify({
   amount: amount,
   currency: 'USD',
-  reference: `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
+  reference: `FLOW-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
   payment_type: 'Regular',
   items: [{
     name: "widget", unit_price: amount, quantity: 1
@@ -59,14 +59,14 @@ refreshPaymentComponentsButton.addEventListener('click', () => {
 merchantOwnedPayButton.addEventListener('click', async () => {
   merchantOwnedPayButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Submitting Payment...</span>'
   merchantOwnedPayButton.setAttribute('disabled', '')
-  payments.submit()
+  component.submit()
 })
 
 async function renderPaymentComponents() {
   eventCounter = 0;
 
-  if(payments !== undefined)
-    payments.unmount()
+  if(component !== undefined)
+    component.unmount()
 
   // clear existing content
   flowElement.innerHTML = ''
@@ -82,7 +82,7 @@ async function renderPaymentComponents() {
 
     // render payment components if a valid session id is returned from server
     if(paymentSession.id){
-      const cko = await CheckoutWebComponents({
+      const checkout = await CheckoutWebComponents({
         appearance: JSON.parse(appearanceInput.value),
         componentOptions: JSON.parse(componentOptionsInput.value),
         environment: 'sandbox',
@@ -98,10 +98,13 @@ async function renderPaymentComponents() {
         },
         onChange: async (_self) => {
           updateEventsTableBody('onChange()', {})
-          if(payments.isValid())
+          if(component.isValid()){
             merchantOwnedPayButton.removeAttribute('disabled')
-          else
+            updateEventsTableBody('onChange()',  await component.tokenize())
+          }
+          else {
             merchantOwnedPayButton.setAttribute('disabled', '')
+          }
         },
         onSubmit: async (_self) => {
           updateEventsTableBody('onSubmit()', {})
@@ -116,16 +119,16 @@ async function renderPaymentComponents() {
           updateEventsTableBody('onError', error)
         }
       })
-      payments = cko.create(componentTypeInput.value, {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
+      component = checkout.create(componentTypeInput.value, {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
 
       eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"
 
-      const isAvailable = await payments.isAvailable()
+      const isAvailable = await component.isAvailable()
       
       updateEventsTableBody('isAvailable()', isAvailable)
 
       if(isAvailable)
-        payments.mount(flowElement)
+        component.mount(flowElement)
         
     }
   }
@@ -138,6 +141,6 @@ async function renderPaymentComponents() {
 
 function updateEventsTableBody(eventName, eventPayload){
   const row = document.createElement('tr')
-  row.innerHTML = `<th scope='row'>${++eventCounter}</th><td>${eventName}</td><td>${payments.isValid()}</td><td>${JSON.stringify(eventPayload)}</td>`
+  row.innerHTML = `<th scope='row'>${++eventCounter}</th><td>${eventName}</td><td>${component.isValid()}</td><td>${JSON.stringify(eventPayload)}</td>`
   eventsTableBody.insertBefore(row, eventsTableBody.firstChild)
 }
