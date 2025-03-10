@@ -93,7 +93,8 @@ async function renderPaymentComponents() {
         // javascript callback methods
         onReady: async (_self) => {
           updateEventsTableBody('onReady()', {})
-          if(showPayButtonDropdown.value === 'false')
+          // show merchant pay button
+          if(showPayButtonDropdown.value === 'false' && showPayButtonDropdown.options[showPayButtonDropdown.selectedIndex].text == 'Hosted by Merchant')
             merchantOwnedPayButton.classList.remove('invisible')
         },
         onChange: async (_self) => {
