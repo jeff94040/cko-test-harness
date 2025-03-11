@@ -1,14 +1,14 @@
 import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
 
+const componentTypeDropdown = document.querySelector('#component-type-dropdown')
 const localeDropdown = document.querySelector('#locale-dropdown')
-const showPayButtonDropdown = document.querySelector('#show-pay-button-dropdown')
+const payButtonDropdown = document.querySelector('#pay-button-dropdown')
 const appearanceInput = document.querySelector('#appearance-input')
-const translationsInput = document.querySelector('#translations-input')
 const componentOptionsInput = document.querySelector('#component-options-input')
-const componentTypeInput = document.querySelector('#component-type-dropdown')
+const translationsInput = document.querySelector('#translations-input')
 const reqTextArea = document.querySelector('#req-textarea')
 const resTextArea = document.querySelector('#res-textarea')
-const refreshPaymentComponentsButton = document.querySelector('#mount-pc-button')
+const refreshFlowButton = document.querySelector('#refresh-flow-button')
 const merchantOwnedPayButton = document.querySelector('#merchant-owned-pay-button')
 const flowElement = document.querySelector('#flow-element')
 const eventsTableBody = document.querySelector('#events-table-body')
@@ -52,9 +52,11 @@ reqTextArea.value = JSON.stringify({
   capture: true
 }, null, 2)
 
-refreshPaymentComponentsButton.addEventListener('click', () => {
+// Refresh Flow button
+refreshFlowButton.addEventListener('click', () => {
   renderPaymentComponents()
 })
+
 
 merchantOwnedPayButton.addEventListener('click', async () => {
   merchantOwnedPayButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Submitting Payment...</span>'
@@ -68,11 +70,21 @@ async function renderPaymentComponents() {
   if(component !== undefined)
     component.unmount()
 
-  // clear existing content
+  // clear or make invisible existing content
   flowElement.innerHTML = ''
   eventsTableBody.innerHTML = ''
   eventsTableHead.innerHTML = ''
   merchantOwnedPayButton.classList.add('invisible')
+
+  // for tokenization-only, force showPayButton to false
+  var componentTypeSelect = componentTypeDropdown.options[componentTypeDropdown.selectedIndex].text
+  if(componentTypeSelect == 'card (tokenization only)'){
+    payButtonDropdown.value = false
+    payButtonDropdown.setAttribute('disabled', '')
+  }
+  else{
+    payButtonDropdown.removeAttribute('disabled')
+  }
 
   try {
     // ask server to create payment session
@@ -94,14 +106,15 @@ async function renderPaymentComponents() {
         onReady: async (_self) => {
           updateEventsTableBody('onReady()', {})
           // show merchant pay button
-          if(showPayButtonDropdown.value === 'false' && showPayButtonDropdown.options[showPayButtonDropdown.selectedIndex].text == 'Hosted by Merchant')
+          if(payButtonDropdown.value === 'false' && componentTypeSelect != 'card (tokenization only)')
             merchantOwnedPayButton.classList.remove('invisible')
         },
         onChange: async (_self) => {
           updateEventsTableBody('onChange()', {})
           if(component.isValid()){
             merchantOwnedPayButton.removeAttribute('disabled')
-            updateEventsTableBody('onChange()',  await component.tokenize())
+            if(componentTypeSelect == 'card (tokenization only)')
+              updateEventsTableBody('onChange()',  await component.tokenize())
           }
           else {
             merchantOwnedPayButton.setAttribute('disabled', '')
@@ -120,7 +133,7 @@ async function renderPaymentComponents() {
           updateEventsTableBody('onError', error)
         }
       })
-      component = checkout.create(componentTypeInput.value, {showPayButton: showPayButtonDropdown.value === 'true' ? true : false});
+      component = checkout.create(componentTypeDropdown.value, {showPayButton: payButtonDropdown.value === 'true' ? true : false});
 
       eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"
 

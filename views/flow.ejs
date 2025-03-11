@@ -10,16 +10,17 @@
   <div class="container-fluid">
     <div class="row align-items-start">
       <div class="col">
-        <button type="button" class="btn btn-primary btn-sm mb-3" id="mount-pc-button">Refresh Flow</button>
+        <button type="button" class="btn btn-primary btn-sm mb-3" id="refresh-flow-button">Refresh Flow</button>
         <div class="form-floating">
           <select class="form-select form-select-sm" id="component-type-dropdown">
             <option value="flow" selected>flow</option>
             <option value="card">card</option>
+            <option value="card">card (tokenization only)</option>
             <option value="applepay">applepay</option>
             <option value="googlepay">googlepay</option>
             <option value="paypal">paypal</option>
           </select>
-          <label for="component-dropdown">Component Type</label>
+          <label for="component-type-dropdown">Component Type</label>
         </div>
         <div class="form-floating">
           <select class="form-select form-select-sm" id="locale-dropdown">
@@ -49,12 +50,11 @@
           <label for="locale-dropdown">Locale</label>
         </div>
         <div class="form-floating">
-          <select class="form-select form-select-sm" id="show-pay-button-dropdown">
-            <option value="true" selected>Hosted by Checkout.com</option>
-            <option value="false">Hosted by Merchant</option>
-            <option value="false">None (Tokenization-only)</option>
+          <select class="form-select form-select-sm" id="pay-button-dropdown">
+            <option value="true" selected>true</option>
+            <option value="false">false</option>
           </select>
-          <label for="show-pay-button-dropdown">Pay Button</label>
+          <label for="pay-button-dropdown">Show Pay Button on Flow</label>
         </div>
         <div class="form-floating">
           <input type="text" class="form-control" id="appearance-input" value='{"colorPrimary": "black"}'>
@@ -62,7 +62,7 @@
         </div>
         <div class="form-floating">
           <input type="text" class="form-control" id="component-options-input" value='{"card": {"data": {"cardholderName": "John Doe"}}}'>
-          <label for="appearance-input">Component Options</label>
+          <label for="component-options-input">Component Options</label>
         </div>
         <div class="form-floating mb-3">
           <input type="text" class="form-control" id="translations-input" value='{"en": {"pay_button.pay": "Submit"}}'>
