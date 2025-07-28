@@ -24,31 +24,24 @@ reqTextArea.value = JSON.stringify({
   currency: 'USD',
   reference: `FLOW-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`,
   payment_type: 'Regular',
+  display_name: 'Jeff US',
   items: [{
-    name: "widget", unit_price: amount, quantity: 1
+    name: "widget", 
+    unit_price: amount, 
+    quantity: 1
   }],
-  billing: {
-    address: {
-      country: 'US'
-    }
-  },
+  billing: {address: {country: 'US'}},
   customer: {
     name: faker.person.fullName(),
     email: faker.internet.email()
   },
-  customer_retry: {
-    max_attempts: 5
-  },
-  enabled_payment_methods: ["card","applepay","googlepay","paypal"],
+  customer_retry: {max_attempts: 5},
+  enabled_payment_methods: ["card","applepay","googlepay","paypal","plaid"],
   disabled_payment_methods: [],
   success_url: 'https://cko.jeff94040.ddns.net/success',
   failure_url: 'https://cko.jeff94040.ddns.net/failure',
   processing_channel_id: 'pc_i7u3hlih2nze7mq6digv3pemuq',
-  payment_method_configuration: {
-    card: {
-      store_payment_details: 'enabled'
-    }
-  },
+  payment_method_configuration: {card: {store_payment_details: 'enabled'}},
   capture: true
 }, null, 2)
 
@@ -94,6 +87,7 @@ async function renderPaymentComponents() {
 
     // render payment components if a valid session id is returned from server
     if(paymentSession.id){
+      console.log('got here')
       const checkout = await CheckoutWebComponents({
         appearance: JSON.parse(appearanceInput.value),
         componentOptions: JSON.parse(componentOptionsInput.value),
