@@ -19,7 +19,7 @@ const Event = mongoose.model('Event', eventSchema);
 const Key = mongoose.model('Key', keySchema);
 
 // initialize database connection
-mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@${mongo_db_cluster_domain}/${mongo_db_name}`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true});
+mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@${mongo_db_cluster_domain}/`, {dbName: 'cko_test_harness'});
 
 // connection object
 const db = mongoose.connection;
@@ -74,7 +74,7 @@ webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
   }
 
 });
-
+/*
 // webhooks - return all events
 webhooksRouter.get('/fetch-events', (req, res) => {  
   Event.find(function (err, events) {
@@ -83,5 +83,17 @@ webhooksRouter.get('/fetch-events', (req, res) => {
   }).sort({_id: -1});
 
 });
+*/
+// webhooks - return all events
+webhooksRouter.get('/fetch-events', async (req, res) => {
+  try {
+    const events = await Event.find().sort({ _id: -1 });
+    res.status(200).json(events);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
 
 export {webhooksRouter};

@@ -1,6 +1,6 @@
 ## Overview
 
-cko-test-harness is a web implementation of Checkout.com's UI-based products. The live web application runs at https://cko.jeff94040.ddns.net/
+cko-test-harness is a web implementation of Checkout.com's UI-based products. The live web application runs at https://cko.jeff94040.com/
 
 ## Supported APIs & Services
 
