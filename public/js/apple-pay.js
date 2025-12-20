@@ -1,4 +1,6 @@
-import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
+//import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
+import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs';
+
 
 const payInOrPayout = document.querySelector('#pay-in-or-payout')
 

@@ -1,4 +1,5 @@
-import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs';
+//import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs';
+import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs';
 
 const action = document.querySelector('#action');
 const submit_button = document.querySelector('#submit-button');

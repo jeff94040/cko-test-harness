@@ -1,4 +1,5 @@
-import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
+//import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
+import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs';
 
 const componentTypeDropdown = document.querySelector('#component-type-dropdown')
 const localeDropdown = document.querySelector('#locale-dropdown')

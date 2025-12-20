@@ -31,7 +31,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_user}:*****@${mongo_db_cluster_domain}/${mongo_db_name}`) });
 
 // webhook listener
-webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
+webhooksRouter.post('/event-listener/:accountStructure', async (req, res) => {
 
   console.log(`received ${req.params.accountStructure} event notification...`);
   console.log(req.headers);
@@ -41,7 +41,6 @@ webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
 
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
-  
   const hmac_password = process.env.CKO_NAS_WEBHOOK_KEY;
 
   const client_signature = crypto.createHmac('sha256', hmac_password)
@@ -55,14 +54,14 @@ webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
 
     const event = new Event({any: {path: req.path, headers: req.headers, body: req.body}});
 
-    event.save(function (err, event) {
-      if(err) {
-        res.status(500).end();
-        return console.error(err);
-      }
+    try {
+      await event.save();
       console.log('wrote event to database...');
       res.status(200).end();
-    });
+    } catch (err) {
+      console.error(err);
+      res.status(500).end();
+    }
 
   }
   else{
@@ -74,16 +73,7 @@ webhooksRouter.post('/event-listener/:accountStructure', (req, res) => {
   }
 
 });
-/*
-// webhooks - return all events
-webhooksRouter.get('/fetch-events', (req, res) => {  
-  Event.find(function (err, events) {
-    if (err) return console.error(err);
-    res.status(200).json(events);
-  }).sort({_id: -1});
 
-});
-*/
 // webhooks - return all events
 webhooksRouter.get('/fetch-events', async (req, res) => {
   try {
@@ -94,6 +84,5 @@ webhooksRouter.get('/fetch-events', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
 
 export {webhooksRouter};
