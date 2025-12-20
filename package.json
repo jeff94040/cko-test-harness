@@ -1,11 +1,11 @@
 {
-  "name": "checkout_com",
+  "name": "checkout-com-test-harness",
   "version": "1.0.0",
   "description": "checkout.com test harness",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon --signal SIGTERM app.js"
   },
   "author": "Jeff Schmidt",
   "license": "ISC",
@@ -14,12 +14,15 @@
     "@faker-js/faker": "^8.4.0",
     "dotenv": "^10.0.0",
     "ejs": "^3.1.9",
-    "express": "^4.17.1",
+    "express": "^4.22.1",
+    "helmet": "^8.1.0",
     "mongoose": "^9.0.2",
-    "node-fetch": "^2.6.1",
     "randomstring": "^1.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

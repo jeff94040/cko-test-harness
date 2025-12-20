@@ -1,54 +1,63 @@
+import dotenv from 'dotenv'; 
 import express from 'express';
+import helmet from 'helmet';
+import path from 'path';
 import {apmsRouter} from './routes/apms.js';
 import {applePayRouter} from './routes/apple-pay.js';
+import {fileURLToPath} from 'url';
+import {flowRouter} from './routes/flow.js';
 import {framesRouter} from './routes/frames.js';
 import {plaidAchRouter} from './routes/plaid-ach.js';
+import {siftRouter} from './routes/sift.js';
 import {upapiRouter} from './routes/upapi.js';
 import {webhooksRouter} from './routes/webhooks.js';
-import {siftRouter} from './routes/sift.js';
-import {flowRouter} from './routes/flow.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-import dotenv from 'dotenv'; 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-//import config props from .env file
 dotenv.config();
 
 const app = express();
-const port = process.env.CKO_PORT;
-if (!port) {
-  console.error("ERROR: CKO_PORT is not set in .env");
-  process.exit(1);
-}
+
+app.disable('x-powered-by');
 
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
 
+// if you use inline scripts / EJS
+app.use(helmet({contentSecurityPolicy: false }));
+
 // Trust front-facing proxies 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, fc00::/7
-app.set('trust proxy', 'uniquelocal');
+app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs');
 
-const pages = [
-  'apple-pay', 'braintree', 'eps', 'events', 'failure',
-  'frames-single', 'frames-multiple', 'giropay', 'iframe-wrapper',
-  'index', 'pan-generator', 'flow', 'paypal', 'plaid-ach',
-  'risk-js', 'sift', 'success', 'trustly'
-];
+const pages = {
+  '/': 'index',
+  '/apple-pay': 'apple-pay',
+  '/braintree': 'braintree',
+  '/eps': 'eps',
+  '/events': 'events',
+  '/failure': 'failure',
+  '/flow': 'flow',
+  '/frames-single': 'frames-single',
+  '/frames-multiple': 'frames-multiple',
+  '/giropay': 'giropay',
+  '/iframe-wrapper': 'iframe-wrapper',
+  '/pan-generator': 'pan-generator',
+  '/paypal': 'paypal',
+  '/plaid-ach': 'plaid-ach',
+  '/risk-js': 'risk-js',
+  '/sift': 'sift',
+  '/success': 'success',
+  '/trustly': 'trustly',
+};
 
-pages.forEach(page => {
-  app.get(`/${page === 'index' ? '' : page}`, (req, res) => {
-    res.render(page);
-  });
+Object.entries(pages).forEach(([route, view]) => {
+  app.get(route, (req, res) => res.render(view));
 });
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// unsafe
-//app.get('/apple-developer-merchantid-domain-association.txt', (req, res) => {res.sendFile('/home/jeff/apps/cko-test-harness/public/.well-known/apple-developer-merchantid-domain-association.txt')})
 app.get('/apple-developer-merchantid-domain-association.txt', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', '.well-known', 'apple-developer-merchantid-domain-association.txt'));
 });
@@ -65,26 +74,21 @@ app.use('/', webhooksRouter);
 app.use('/', siftRouter)
 app.use('/', flowRouter);
 
-// Set folder location for static content
-//app.use(express.static('public/html', {extensions: 'html'}));
-
-
-// unsafe
-/*
-app.use(express.static('public/js'));
-app.use(express.static('public'));
-app.use(express.static('node_modules'))
-*/
 // Serve only faker from node_modules under /vendor
-app.use(
-  '/vendor/@faker-js/faker',
-  express.static(path.join(__dirname, 'node_modules', '@faker-js', 'faker'))
-);
+app.use('/vendor/@faker-js/faker', express.static(path.join(__dirname, 'node_modules', '@faker-js', 'faker')));
 
-//app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
-//app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
-//app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  extensions: ['html'],
+  index: false,
+  maxAge: '1h'
+}));
+
+const port = process.env.CKO_PORT;
+if (!port) {
+  console.error("ERROR: CKO_PORT is not set in .env");
+  process.exit(1);
+}
 
 app.listen(port, () => {
   console.log(`Checkout app listening at http://localhost:${port}`)
