@@ -4,6 +4,8 @@ import {faker} from '@faker-js/faker'
 import fetch from 'node-fetch'
 import fs from 'fs'
 import https from 'node:https'
+import crypto from 'crypto'
+import { clear } from 'node:console'
 
 const applePayRouter = express.Router();
 
@@ -98,6 +100,13 @@ applePayRouter.post('/apple-pay-payout', async (req, res) => {
 // apple pay - request payment
 applePayRouter.post('/apple-pay-payment', async (req, res) => {
 
+  decryptApplePayPayload(req.body.payment)
+
+  // req represents the 'payment' object from onpaymentauthorized() callback from the Apple Pay JS SDK
+  // see req.body.payment.billingContact and req.body.payment.shippingContact
+  // see req.body.payment.token.paymentData.data for the encrypted blob
+  // see req.body.payment.token.paymentMethod for card metadata {displayName: 'Visa 2918', network: 'Visa', type: 'credit'}
+
   const url = 'https://api.sandbox.checkout.com/payments'
   const paymentToken = await requestToken(req.body.payment.token.paymentData)
   const options = {
@@ -170,6 +179,76 @@ async function requestToken(paymentData){
   console.log(response)
 
   return response.token
+}
+
+async function decryptApplePayPayload(payment){
+
+  // data from private key
+  const merchantPrivateKeyPem = fs.readFileSync(process.env.APPLE_PAY_KEY, 'utf8');
+  console.log(`merchantPrivateKeyPem: ${merchantPrivateKeyPem}`)
+
+  // data from Apple Pay payload
+  const ephemeralPublicKeyB64 = payment.token.paymentData.header.ephemeralPublicKey;
+  console.log(`ephemeralPublicKeyB64: ${ephemeralPublicKeyB64}`)
+  const encryptedDataB64 = payment.token.paymentData.data;
+  console.log(`encryptedDataB64: ${encryptedDataB64}`)
+
+  var clearText = decryptApplePay(payment.token.paymentData, merchantPrivateKeyPem, process.env.APPLE_PAY_MERCHANT_ID)
+  console.log(`clear text: ${clearText}`)
+
+}
+
+function decryptApplePay(applePayData, merchantPrivateKeyPem, merchantIdString) {
+    const { data, header } = applePayData;
+    const { ephemeralPublicKey, transactionId } = header;
+
+    // 1. Load the Private Key
+    const privKeyObj = crypto.createPrivateKey(merchantPrivateKeyPem);
+
+    // 2. Load the Ephemeral Public Key from Apple
+    const pubKeyBuf = Buffer.from(ephemeralPublicKey, 'base64');
+    const pubKeyObj = crypto.createPublicKey({
+        key: pubKeyBuf,
+        format: 'der',
+        type: 'spki'
+    });
+
+    // 3. Generate Shared Secret (ECDH)
+    // This replaces the .export() and .setPrivateKey() logic
+    const sharedSecret = crypto.diffieHellman({
+        privateKey: privKeyObj,
+        publicKey: pubKeyObj
+    });
+
+    // 4. Key Derivation Function (KDF)
+    const algorithm = Buffer.from('\x0Did-aes256-GCM', 'ascii');
+    const partyU = Buffer.from('Apple', 'ascii');
+    // Hash of the Merchant ID string is required for Party V
+    const partyV = crypto.createHash('sha256').update(merchantIdString).digest();
+    
+    const info = Buffer.concat([algorithm, partyU, partyV]);
+    
+    const hash = crypto.createHash('sha256');
+    hash.update(Buffer.from([0, 0, 0, 1])); // Counter
+    hash.update(sharedSecret);
+    hash.update(info);
+    const symmetricKey = hash.digest();
+
+    // 5. AES-256-GCM Decryption
+    const encryptedBuf = Buffer.from(data, 'base64');
+    const iv = Buffer.alloc(16, 0); // Apple Pay uses 16 null bytes
+    const tag = encryptedBuf.slice(-16);
+    const cipherText = encryptedBuf.slice(0, -16);
+
+    const decipher = crypto.createDecipheriv('aes-256-gcm', symmetricKey, iv);
+    decipher.setAuthTag(tag);
+
+    const decrypted = Buffer.concat([
+        decipher.update(cipherText),
+        decipher.final()
+    ]);
+
+    return JSON.parse(decrypted.toString('utf8'));
 }
 
 export {applePayRouter}; 

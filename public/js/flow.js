@@ -126,8 +126,11 @@ async function renderPaymentComponents() {
         },
         onError: async (_self, error) => {
           updateEventsTableBody('onError', error)
+        },
+        handleSubmit: async (component, submitData) => {
+          updateEventsTableBody('handleSubmit()', component)
         }
-      })
+      });
       component = checkout.create(componentTypeDropdown.value, {showPayButton: payButtonDropdown.value === 'true' ? true : false});
 
       eventsTableHead.innerHTML = "<tr><th scope='col'>#</th><th scope='col'>Event</th><th scope='col'>isValid()</th><th scope='col'>Payload</th></tr>"

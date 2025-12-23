@@ -80,8 +80,7 @@ app.use('/vendor/@faker-js/faker', express.static(path.join(__dirname, 'node_mod
 //app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public'), {
   extensions: ['html'],
-  index: false,
-  maxAge: '1h'
+  index: false
 }));
 
 const port = process.env.CKO_PORT;
