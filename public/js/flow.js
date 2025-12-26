@@ -1,4 +1,3 @@
-//import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
 import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs';
 
 const componentTypeDropdown = document.querySelector('#component-type-dropdown')
@@ -15,9 +14,12 @@ const flowElement = document.querySelector('#flow-element')
 const eventsTableBody = document.querySelector('#events-table-body')
 const eventsTableHead = document.querySelector('#events-table-head')
 
+const processingChannelId = document.querySelector('#pc-id')
+const publicKey = document.querySelector('#pk')
+const secretKey = document.querySelector('#sk')
+
 var eventCounter = 0
 var component
-var public_key = await (await fetch('/frames-key')).text()
 const amount = faker.number.int({ min: 1000, max: 100000 })
 
 reqTextArea.value = JSON.stringify({
@@ -41,7 +43,6 @@ reqTextArea.value = JSON.stringify({
   disabled_payment_methods: [],
   success_url: 'https://cko.jeff94040.ddns.net/success',
   failure_url: 'https://cko.jeff94040.ddns.net/failure',
-  processing_channel_id: 'pc_i7u3hlih2nze7mq6digv3pemuq',
   payment_method_configuration: {card: {store_payment_details: 'enabled'}},
   capture: true
 }, null, 2)
@@ -50,7 +51,6 @@ reqTextArea.value = JSON.stringify({
 refreshFlowButton.addEventListener('click', () => {
   renderPaymentComponents()
 })
-
 
 merchantOwnedPayButton.addEventListener('click', async () => {
   merchantOwnedPayButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span><span> Submitting Payment...</span>'
@@ -82,20 +82,28 @@ async function renderPaymentComponents() {
 
   try {
     // ask server to create payment session
-    const options = {method: 'POST', headers: {'Content-Type': 'application/json'}, body: reqTextArea.value}
+    const options = {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+        'Processing-Channel-Id': processingChannelId.value,
+        'Public-Key': publicKey.value,
+        'Authorization': secretKey.value
+      }, 
+      body: reqTextArea.value
+    }
     var paymentSession = await (await fetch('/create-payment-session', options)).json();
     resTextArea.innerHTML = JSON.stringify(paymentSession, null, 2)
 
     // render payment components if a valid session id is returned from server
     if(paymentSession.id){
-      console.log('got here')
       const checkout = await CheckoutWebComponents({
         appearance: JSON.parse(appearanceInput.value),
         componentOptions: JSON.parse(componentOptionsInput.value),
         environment: 'sandbox',
         locale: localeDropdown.value,
         paymentSession: paymentSession, //required
-        publicKey: public_key, //required
+        publicKey: publicKey.value, //required
         translations: JSON.parse(translationsInput.value),
         // javascript callback methods
         onReady: async (_self) => {
@@ -127,9 +135,11 @@ async function renderPaymentComponents() {
         onError: async (_self, error) => {
           updateEventsTableBody('onError', error)
         },
+        /*
         handleSubmit: async (component, submitData) => {
           updateEventsTableBody('handleSubmit()', component)
         }
+          */
       });
       component = checkout.create(componentTypeDropdown.value, {showPayButton: payButtonDropdown.value === 'true' ? true : false});
 

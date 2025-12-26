@@ -5,31 +5,36 @@ import fetch from 'node-fetch'
 import fs from 'fs'
 import https from 'node:https'
 import crypto from 'crypto'
-import { clear } from 'node:console'
+import ApplePayJs from '@basis-theory/apple-pay-js';
+
+// Destructure from the default export
+const { ApplePaymentTokenContext } = ApplePayJs;
 
 const applePayRouter = express.Router();
 
-//import config props from .env file
 dotenv.config();
 
-// Apple Pay - Return Apple Pay Merchant ID
-applePayRouter.get('/apple-pay-merchant-id', (req, res) => {
-  res.send(process.env.APPLE_PAY_MERCHANT_ID)
-})
-
-// Apple Pay - Request an Apple Pay Payment Session
+// Validate Session
 applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
+
+  console.log('req.body.applePayMerchantId: ',req.body.applePayMerchantId)
+  console.log('req.body: ', req.body)
+  var checkoutDecryption = true // checkout decryption by default
+  if (req.body.applePayMerchantId === process.env.APPLE_PAY_MERCHANT_DECRYPTION_MERCHANT_ID)
+    checkoutDecryption = false // merchant decryption
+
+  console.log('checkoutDecryption: ', checkoutDecryption)
 
   const httpsAgent = new https.Agent({
     rejectUnauthorized: false, 
-    cert: fs.readFileSync(process.env.APPLE_PAY_CERTIFICATE),
-    key: fs.readFileSync(process.env.APPLE_PAY_KEY)
+    cert: fs.readFileSync(checkoutDecryption ? process.env.APPLE_PAY_CERTIFICATE : process.env.APPLE_PAY_MERCHANT_DECRYPTION_CERTIFICATE),
+    key: fs.readFileSync(checkoutDecryption ? process.env.APPLE_PAY_KEY : process.env.APPLE_PAY_MERCHANT_DECRYPTION_KEY)
   })
 
   const validateSessionResponse = await (await fetch(req.body.validationURL, {
     method: 'POST',
     body: JSON.stringify({
-      merchantIdentifier: process.env.APPLE_PAY_MERCHANT_ID,
+      merchantIdentifier: checkoutDecryption ? process.env.APPLE_PAY_MERCHANT_ID : process.env.APPLE_PAY_MERCHANT_DECRYPTION_MERCHANT_ID,
       domainName: process.env.APPLE_PAY_DOMAIN,
       //domainName: 'michaeltaylor.io',
       displayName: process.env.APPLE_PAY_DISPLAY_NAME
@@ -43,7 +48,7 @@ applePayRouter.post('/apple-pay-validate-session', async (req, res) => {
   res.status(200).json(validateSessionResponse)
 })
 
-// apple pay - request payout
+// Request Payout
 applePayRouter.post('/apple-pay-payout', async (req, res) => {
 
   const url = 'https://api.sandbox.checkout.com/payments'
@@ -86,30 +91,114 @@ applePayRouter.post('/apple-pay-payout', async (req, res) => {
     })
   }
 
-  console.log(`\nSubmitting request to: ${url}`)
-  console.log(options)
-
+  console.log(`\nSubmitting request to: ${url}`, options)
   const response = await (await fetch(url, options)).json()
-
-  console.log(`\nReceived response from: ${url} `)
-  console.log(response)
+  console.log(`\nReceived response from: ${url} `, response)
 
   res.status(200).json(response)
 })
 
-// apple pay - request payment
+// Request Payment
 applePayRouter.post('/apple-pay-payment', async (req, res) => {
 
-  decryptApplePayPayload(req.body.payment)
+  console.log('req.body.applePayMerchantId: ',req.body.applePayMerchantId)
 
-  // req represents the 'payment' object from onpaymentauthorized() callback from the Apple Pay JS SDK
-  // see req.body.payment.billingContact and req.body.payment.shippingContact
-  // see req.body.payment.token.paymentData.data for the encrypted blob
-  // see req.body.payment.token.paymentMethod for card metadata {displayName: 'Visa 2918', network: 'Visa', type: 'credit'}
+  switch(req.body.applePayMerchantId){
+    case process.env.APPLE_PAY_MERCHANT_ID:
+      res.status(200).json(await checkoutDecryptionPayment(req))
+      break;
+    case process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID:
+      res.status(200).json(await merchantDecryptionPayment(req))
+      break;
+    default:
+      // do nothing
+  }
+})
 
-  const url = 'https://api.sandbox.checkout.com/payments'
-  const paymentToken = await requestToken(req.body.payment.token.paymentData)
-  const options = {
+async function merchantDecryptionPayment(req){
+  console.log('got here')
+
+  // --- CONFIGURATION ---
+  const MERCHANT_ID = process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID
+  const PRIVATE_KEY_PATH = process.env.APPLE_PAY_DECRYPTION_TRANSACTION_KEY
+
+  // Paste your FULL token object here
+  // (I have filled in the structure based on your provided snippet)
+  const TOKEN = {
+    paymentData: {
+      version: 'EC_v1',
+      // REPLACE THIS with the full Base64 string from your actual payload
+      data: req.body.payment.token.paymentData.data,
+      signature: req.body.payment.token.paymentData.signature,
+      header: {
+          // REPLACE THIS with the actual ephemeralPublicKey from your payload
+          ephemeralPublicKey: req.body.payment.token.paymentData.header.ephemeralPublicKey, 
+          publicKeyHash: req.body.payment.token.paymentData.header.publicKeyHash,
+          transactionId: req.body.payment.token.paymentData.header.transactionId
+      }
+    }
+  };
+
+  // BASIS THEORY CODE BEGIN
+  // create the decryption context
+  const context = new ApplePaymentTokenContext({
+    // add as many merchant certificates you need
+    merchants: [
+      {
+        // optional certificate identifier
+        //identifier: process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID,
+        // the certificate and the private key are Buffers in PEM format
+        certificatePem: fs.readFileSync(process.env.APPLE_PAY_DECRYPTION_TRANSACTION_CERTIFICATE),
+        privateKeyPem: fs.readFileSync(process.env.APPLE_PAY_DECRYPTION_TRANSACTION_KEY),
+      },
+    ],
+  });
+
+  try {
+    // decrypts Apple's PKPaymentToken paymentData
+    console.log(context.decrypt(req.body.payment.token.paymentData));
+  } catch (error) {
+    console.error('could not decrypt the token with given merchant certificates: ', error)
+    // couldn't decrypt the token with given merchant certificates
+  }
+  // BASIS THEORY CODE END
+
+  //console.log('TOKEN: ', TOKEN)
+  //console.log('MERCHANT_ID: ', MERCHANT_ID)
+  //console.log('PRIVATE_KEY_PATH: ', PRIVATE_KEY_PATH)
+  /*
+    const result = decryptApplePayToken(TOKEN, MERCHANT_ID, PRIVATE_KEY_PATH);
+
+    if (result) {
+        console.log("SUCCESS! Decrypted Payment Data:");
+        console.log(JSON.stringify(result, null, 2));
+    }
+  */
+  return {}
+}
+
+async function checkoutDecryptionPayment(req){
+
+  const createTokenUrl = 'https://api.sandbox.checkout.com/tokens'
+
+  const createTokenOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `${process.env.CKO_NAS_PUBLIC_KEY}`
+    },
+    body: JSON.stringify({
+      'type': 'applepay',
+      'token_data': req.body.payment.token.paymentData
+    })
+  }
+
+  console.log(`\nSubmitting request to: ${createTokenUrl}`, createTokenOptions)
+  const createTokenResponse = await (await fetch(createTokenUrl, createTokenOptions)).json()
+  console.log(`\nReceived response from: ${createTokenUrl} `, createTokenResponse)
+
+  const runPaymentUrl = 'https://api.sandbox.checkout.com/payments'
+  const runPaymentOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -118,7 +207,7 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
     body: JSON.stringify({
       'source': {
         'type': 'token',
-        'token': paymentToken,
+        'token': createTokenResponse.token,
         'billing_address':{
           'address_line1': req.body.payment.billingContact.addressLines[0],
           'city': req.body.payment.billingContact.locality,
@@ -142,113 +231,109 @@ applePayRouter.post('/apple-pay-payment', async (req, res) => {
     })
   }
 
-  console.log(`\nSubmitting request to: ${url}`)
-  console.log(options)
+  console.log(`\nSubmitting request to: ${runPaymentUrl}`, runPaymentOptions)
+  const paymentResponse = await (await fetch(runPaymentUrl, runPaymentOptions)).json()
+  console.log(`\nReceived response from: ${runPaymentUrl} `, paymentResponse)
 
-  const response = await (await fetch(url, options)).json()
-
-  console.log(`\nReceived response from: ${url} `)
-  console.log(response)
-
-  res.status(200).json(response)
-})
-
-// Apple Pay - Request tok_xxx given encrypted payment data
-async function requestToken(paymentData){
-
-  const url = 'https://api.sandbox.checkout.com/tokens'
-
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `${process.env.CKO_NAS_PUBLIC_KEY}`
-    },
-    body: JSON.stringify({
-      'type': 'applepay',
-      'token_data': paymentData
-    })
-  }
-
-  console.log(`\nSubmitting request to: ${url}`)
-  console.log(options)
-
-  // apple pay - create cko token
-  const response = await (await fetch(url, options)).json()
-  console.log(`\nReceived response from: ${url} `)
-  console.log(response)
-
-  return response.token
+  //res.status(200).json(paymentResponse)
+  return paymentResponse
 }
+/*
+function decryptApplePayToken(token, merchantId, privateKeyPath) {
+    try {
+        // 1. Load your Private Key
+        const privateKeyPem = fs.readFileSync(privateKeyPath, 'utf8');
+        const myPrivateKey = crypto.createPrivateKey(privateKeyPem);
 
-async function decryptApplePayPayload(payment){
+        // --- DEBUGGING START ---
+        console.log("Key Type:", myPrivateKey.type); // Should be 'private'
+        console.log("Algorithm:", myPrivateKey.asymmetricKeyType); // MUST be 'ec'
 
-  // data from private key
-  const merchantPrivateKeyPem = fs.readFileSync(process.env.APPLE_PAY_KEY, 'utf8');
-  console.log(`merchantPrivateKeyPem: ${merchantPrivateKeyPem}`)
+        // This will confirm if it is the correct curve (prime256v1)
+        console.log("Key Details:", myPrivateKey.asymmetricKeyDetails); 
+        // --- DEBUGGING END ---
 
-  // data from Apple Pay payload
-  const ephemeralPublicKeyB64 = payment.token.paymentData.header.ephemeralPublicKey;
-  console.log(`ephemeralPublicKeyB64: ${ephemeralPublicKeyB64}`)
-  const encryptedDataB64 = payment.token.paymentData.data;
-  console.log(`encryptedDataB64: ${encryptedDataB64}`)
+        // 2. Extract Token Parts
+        const { header, data } = token.paymentData;
+        const ephemeralPublicKeyStr = header.ephemeralPublicKey;
 
-  var clearText = decryptApplePay(payment.token.paymentData, merchantPrivateKeyPem, process.env.APPLE_PAY_MERCHANT_ID)
-  console.log(`clear text: ${clearText}`)
+        console.log('header: ', header)
+        console.log('data: ', data)
+        console.log('ephemeralPublicKeyStr: ', ephemeralPublicKeyStr)
+        
+        // 3. Reconstruct the Ephemeral Public Key
+        // Apple sends it as Base64. We need a KeyObject for ECDH.
+        const applePublicKeyBuffer = Buffer.from(ephemeralPublicKeyStr, 'base64');
+        const applePublicKey = crypto.createPublicKey({
+            key: applePublicKeyBuffer,
+            format: 'der',
+            type: 'spki'
+        });
 
+        // 4. Generate Shared Secret (ECDH)
+        // We use our Private Key + Apple's Public Key
+        const sharedSecret = crypto.diffieHellman({
+            privateKey: myPrivateKey,
+            publicKey: applePublicKey
+        });
+
+        // 5. Derive Symmetric Key (KDF)
+        // We need to construct the "Info" buffer according to NIST SP 800-56A
+        
+        // A. Algorithm ID: length (1 byte) + ASCII string
+        const algorithmId = Buffer.concat([
+            Buffer.from([0x0d]), 
+            Buffer.from('id-aes256-GCM', 'utf8')
+        ]);
+
+        // B. PartyU Info: "Apple"
+        const partyU = Buffer.from('Apple', 'utf8');
+
+        // C. PartyV Info: SHA-256 Hash of your Merchant ID
+        //const partyV = crypto.createHash('sha256').update(merchantId, 'utf8').digest();
+        // C. PartyV Info: Use the exact Hex Hash from your certificate
+        const partyV = Buffer.from('8928F03D6C1E6413BD156F9F5A5B7DF4CABBCC35A978415D4451E42FCC2B5DA0', 'hex');
+
+        // D. Combine Info
+        const info = Buffer.concat([algorithmId, partyU, partyV]);
+
+        // E. Calculate the hash: SHA256( Counter || SharedSecret || Info )
+        // Counter is 0x00000001 (Fixed 4 bytes)
+        const counter = Buffer.from([0x00, 0x00, 0x00, 0x01]);
+        const kdfInput = Buffer.concat([counter, sharedSecret, info]);
+        
+        const derivedKeyHash = crypto.createHash('sha256').update(kdfInput).digest();
+        
+        // The Symmetric Key is the first 32 bytes of this hash
+        const symmetricKey = derivedKeyHash.subarray(0, 32);
+
+        // 6. Decrypt the Data (AES-256-GCM)
+        const encryptedBytes = Buffer.from(data, 'base64');
+
+        // Apple includes the Auth Tag (16 bytes) at the END of the data
+        const authTagLength = 16;
+        const ciphertext = encryptedBytes.subarray(0, encryptedBytes.length - authTagLength);
+        const authTag = encryptedBytes.subarray(encryptedBytes.length - authTagLength);
+        
+        // Apple uses an empty IV (16 zero bytes)
+        const iv = Buffer.alloc(16, 0);
+
+        const decipher = crypto.createDecipheriv('aes-256-gcm', symmetricKey, iv);
+        decipher.setAuthTag(authTag);
+
+        let decrypted = decipher.update(ciphertext);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+        // 7. Parse Result
+        return JSON.parse(decrypted.toString('utf8'));
+
+    } catch (err) {
+        console.error("Decryption Failed:", err.message);
+        // Common errors: "Invalid key encoding" (check your PEM file), 
+        // "Unsupported state or unable to authenticate" (wrong key or corrupted data)
+        return null;
+    }
 }
-
-function decryptApplePay(applePayData, merchantPrivateKeyPem, merchantIdString) {
-    const { data, header } = applePayData;
-    const { ephemeralPublicKey, transactionId } = header;
-
-    // 1. Load the Private Key
-    const privKeyObj = crypto.createPrivateKey(merchantPrivateKeyPem);
-
-    // 2. Load the Ephemeral Public Key from Apple
-    const pubKeyBuf = Buffer.from(ephemeralPublicKey, 'base64');
-    const pubKeyObj = crypto.createPublicKey({
-        key: pubKeyBuf,
-        format: 'der',
-        type: 'spki'
-    });
-
-    // 3. Generate Shared Secret (ECDH)
-    // This replaces the .export() and .setPrivateKey() logic
-    const sharedSecret = crypto.diffieHellman({
-        privateKey: privKeyObj,
-        publicKey: pubKeyObj
-    });
-
-    // 4. Key Derivation Function (KDF)
-    const algorithm = Buffer.from('\x0Did-aes256-GCM', 'ascii');
-    const partyU = Buffer.from('Apple', 'ascii');
-    // Hash of the Merchant ID string is required for Party V
-    const partyV = crypto.createHash('sha256').update(merchantIdString).digest();
-    
-    const info = Buffer.concat([algorithm, partyU, partyV]);
-    
-    const hash = crypto.createHash('sha256');
-    hash.update(Buffer.from([0, 0, 0, 1])); // Counter
-    hash.update(sharedSecret);
-    hash.update(info);
-    const symmetricKey = hash.digest();
-
-    // 5. AES-256-GCM Decryption
-    const encryptedBuf = Buffer.from(data, 'base64');
-    const iv = Buffer.alloc(16, 0); // Apple Pay uses 16 null bytes
-    const tag = encryptedBuf.slice(-16);
-    const cipherText = encryptedBuf.slice(0, -16);
-
-    const decipher = crypto.createDecipheriv('aes-256-gcm', symmetricKey, iv);
-    decipher.setAuthTag(tag);
-
-    const decrypted = Buffer.concat([
-        decipher.update(cipherText),
-        decipher.final()
-    ]);
-
-    return JSON.parse(decrypted.toString('utf8'));
-}
+    */
 
 export {applePayRouter}; 

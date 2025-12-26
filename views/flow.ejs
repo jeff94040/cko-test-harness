@@ -11,6 +11,28 @@
     <div class="row align-items-start">
       <div class="col">
         <button type="button" class="btn btn-primary btn-sm mb-3" id="refresh-flow-button">Refresh Flow</button>
+
+        <div class="row g-2">
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="pc-id" value="<%= processingChannelId %>">
+              <label for="pc-id">Processing Channel ID Override</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="pk" value="<%= publicKey %>">
+              <label for="pk">Public Key Override</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="sk" value="sk_sbox_***************************">
+              <label for="sk">Secret Key Override</label>
+            </div>
+          </div>
+        </div>        
+
         <div class="form-floating">
           <select class="form-select form-select-sm" id="component-type-dropdown">
             <option value="flow" selected>flow</option>

@@ -11,12 +11,14 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@basis-theory/apple-pay-js": "^2.0.3",
     "@faker-js/faker": "^8.4.0",
     "dotenv": "^10.0.0",
     "ejs": "^3.1.9",
     "express": "^4.22.1",
     "helmet": "^8.1.0",
     "mongoose": "^9.0.2",
+    "node-fetch": "^3.3.2",
     "randomstring": "^1.2.1"
   },
   "devDependencies": {

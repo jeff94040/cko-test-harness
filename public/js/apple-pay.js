@@ -1,31 +1,54 @@
-//import { faker } from '/@faker-js/faker/dist/esm/locale/en_US.mjs'
 import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs';
 
-
 const payInOrPayout = document.querySelector('#pay-in-or-payout')
+const applePayMerchantId = document.querySelector('#checkout-or-merchant-decryption');
+const applePayUnsupportedDiv = document.querySelector('#apple-pay-unsupported')
+const applePayDiv = document.querySelector('#apple-pay')
 
-// determine level of device, browser, and wallet support for Apple Pay and display the appropriate results
-if (!window.ApplePaySession) {
-  document.querySelector('#apple-pay-availability').innerHTML = 'This browser does not support Apple Pay. Try Safari on any device or Chrome on iOS.'
-}
-else if(!ApplePaySession.canMakePayments){
-  document.querySelector('#apple-pay-availability').innerHTML = 'This browser supports Apple Pay, but the device is not capable of making Apple Pay payments.'
-}
-else{
-  const applePayMerchantID = await (await fetch('/apple-pay-merchant-id')).text()
+// Run when the page is fully loaded
+document.addEventListener('DOMContentLoaded', checkApplePaySupport);
 
-  const activeCard = await ApplePaySession.canMakePaymentsWithActiveCard(applePayMerchantID);
+// Run whenever the dropdown changes
+applePayMerchantId.addEventListener('change', checkApplePaySupport);
 
-  if(activeCard)
-    document.querySelector('#apple-pay-button').removeAttribute('style')
-  else
-    document.querySelector('#apple-pay-availability').innerHTML = 'This device and browser both support Apple Pay. Either your wallet does not have an eligible payment method or wallet access is prevented by use of an external monitor.'
+async function checkApplePaySupport(){
+
+  // Basic check: Is the Apple Pay API even available in this browser?
+  if (!window.ApplePaySession) {
+    applePayUnsupportedDiv.innerHTML = "Apple Pay not supported."
+  }
+  else{
+    try {
+      // Advanced check: Does the device support it AND has a card?
+      console.log(`Apple Pay Merchant ID: ${applePayMerchantId.value}`)
+      const status = await ApplePaySession.applePayCapabilities(applePayMerchantId.value);
+      console.log(`ApplePaySession.applePayCapabilities(): ${status.paymentCredentialStatus}`)
+
+      switch (status.paymentCredentialStatus) {
+        
+        case 'paymentCredentialsAvailable':
+        case 'paymentCredentialsUnavailable':
+        case 'paymentCredentialStatusUnknown':
+          applePayDiv.removeAttribute('style')
+          applePayUnsupportedDiv.innerHTML = ''
+          break;
+
+        case 'applePayUnsupported':
+        default:
+          //applePayDiv.style.display = 'none'
+          applePayUnsupportedDiv.innerHTML = "Apple Pay not supported."
+      }
+    } 
+    catch (error) {
+      console.error("Error checking Apple Pay capabilities:", error);
+    }
+  }
 }
 
 // when user clicks the apple pay button, we must create/begin an apple pay session, validate the merchant, and submit a payment
 document.querySelector('apple-pay-button').addEventListener('click', () => {
   // create session
-  console.log('Creating ApplePaySession()')
+  console.log('Creating new ApplePaySession()')
   var applePaySession = new ApplePaySession(14, {
     merchantCapabilities: ['supports3DS'],
     supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
@@ -42,7 +65,7 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     },
     shippingContact: {
       givenName: faker.person.fullName(), 
-      phoneNumber: faker.phone.number('4##-###-####'),
+      phoneNumber: faker.phone.number().split(' ')[0],
       emailAddress: faker.internet.email()
     },
     total: {label: "Jeff's Test Account", amount: '3.00'},
@@ -50,40 +73,38 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
     currencyCode: 'USD',
   })
   // begin session
-  console.log('Calling ApplePaySession.begin():')
+  console.log('Calling applePaySession.begin():')
   applePaySession.begin()
 
   // validate merchant
   applePaySession.onvalidatemerchant = async (event) => {
-    console.log('ApplePaySession.onValidateMerchant() callback details:')
-    console.log(event)
-    console.log('Asking server to validate the session...')
+    console.log('applePaySession.onValidateMerchant() callback details:', event)
+    console.log('Calling /apple-pay-validate-session')
+    console.log('applePayMerchantId.value (latest)', applePayMerchantId.value)
     const validateSessionResponse = await (await fetch('/apple-pay-validate-session', {
       method: 'POST',
       body: JSON.stringify({
-        validationURL: event.validationURL
+        validationURL: event.validationURL,
+        applePayMerchantId: applePayMerchantId.value
       }),
       headers: {'Content-Type': 'application/json'}
     })).json()
-    console.log('Validate session response from server:')
-    console.log(validateSessionResponse)
-    console.log('Calling completeMerchantValidation():')
-    var foo = applePaySession.completeMerchantValidation(validateSessionResponse)
-    console.log('foo:')
-    console.log(foo)
+    console.log('Validate session response from server:', validateSessionResponse)
+    console.log('Calling completeMerchantValidation()')
+    applePaySession.completeMerchantValidation(validateSessionResponse)
   }
 
   // payment authorized by user
   applePaySession.onpaymentauthorized = async (event) => {
     // submit payment
-    console.log('ApplePaySession.onpaymentauthorized() callback details:')
-    console.log(event)
+    console.log('applePaySession.onpaymentauthorized() callback details:', event)
 
     const url = payInOrPayout.value === 'pay-in' ? '/apple-pay-payment' : '/apple-pay-payout'
     const options = {
       method: 'POST',
       body: JSON.stringify({
-        payment: event.payment
+        payment: event.payment,
+        applePayMerchantId: applePayMerchantId.value
       }),
       headers: {'Content-Type': 'application/json'}
     }
@@ -93,15 +114,13 @@ document.querySelector('apple-pay-button').addEventListener('click', () => {
 
     // update session w/ payment results
     document.querySelector('#apple-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
-    console.log('Server response from running the payment:')
-    console.log(paymentResponse)
+    console.log('Server response from running the payment:', paymentResponse)
 
     if (paymentResponse.approved === true || paymentResponse.status === 'Pending')
       applePaySession.completePayment(ApplePaySession.STATUS_SUCCESS)
     else
       applePaySession.completePayment(ApplePaySession.STATUS_FAILURE)
 
-    //applePaySession.completePayment(paymentResponse.approved === true ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE)
   }
 
 })

@@ -8,10 +8,8 @@
   <%- include('navbar'); %>
   
   <div class="container-fluid">
-    <!--
-    <input type="text" name="name">
-    <input type="text" name="address">
-    -->
+    <meta id="public-key" data-public-key="<%= publicKey %>">
+
     <div class="card-frame mb-3"><!-- frame inserted here --></div>
     <table class="table table-sm">
       <thead>
@@ -28,6 +26,7 @@
   
   <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
   <script type="module" src="js/frames.js"></script>
+
   <%- include('bootstrap-js'); %>
 
 </body>

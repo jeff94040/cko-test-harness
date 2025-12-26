@@ -9,18 +9,19 @@ dotenv.config();
 // create payment session
 flowRouter.post('/create-payment-session', async (req, res) => {
 
+  req.body.processing_channel_id = req.get('Processing-Channel-Id')
+  console.log(req.get('Processing-Channel-Id'), req.get('Public-Key'), req.get('Authorization'))
+
   const paymentSession = await (await fetch('https://api.sandbox.checkout.com/payment-sessions', {
     method: 'POST',
     body: JSON.stringify(req.body),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+      'Authorization': req.get('Authorization') === 'sk_sbox_***************************' ? process.env.CKO_NAS_SECRET_KEY : req.get('Authorization')
     }
   })).json()
 
-  console.log('response from /payment-sessions:')
-  console.log((paymentSession));
-
+  console.log('response from /payment-sessions:', paymentSession)
   res.status(200).json(paymentSession);
 
 });

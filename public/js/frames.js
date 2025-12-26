@@ -4,8 +4,7 @@ const eventsTableBody = document.querySelector('#events-table-body')
 // Log counter ++ per event fired
 var eventCounter = 0;
 
-// Fetch Frames public key from server
-const publicKey = await (await fetch('/frames-key')).text()
+const publicKey = document.querySelector('#public-key').dataset.publicKey
 
 // Init Frames
 Frames.init({

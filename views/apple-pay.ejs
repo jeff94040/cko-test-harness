@@ -9,7 +9,7 @@
 
 <script crossorigin src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js" crossorigin="anonymous"> </script>
 
-  <div class="m-3" id="apple-pay-availability">
+  <div class="m-3">
     <div class="form-floating">
       <select class="form-select form-select-sm" id="pay-in-or-payout">
         <option value="pay-in" selected>Pay-in</option>
@@ -17,8 +17,16 @@
       </select>
       <label for="pay-in-or-payout">ApplePay Pay-in or Payout?</label>
     </div>
+    <div class="form-floating">
+      <select class="form-select form-select-sm" id="checkout-or-merchant-decryption">
+        <option value="<%= merchantDecryptionMerchantId %>" selected>Merchant Decryption</option>
+        <option value="<%= checkoutDecryptionMerchantId %>">Checkout Decryption</option>
+      </select>
+      <label for="checkout-or-merchant-decryption">Checkout or Merchant Decryption?</label>
+    </div>
   </div>
-  <div class="m-3" style="display: none" id="apple-pay-button">
+  <div class="m-3" id="apple-pay-unsupported"></div>
+  <div class="m-3" style="display: none" id="apple-pay">
     <style>
       apple-pay-button {
         --apple-pay-button-width: 150px;

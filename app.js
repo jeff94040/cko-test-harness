@@ -6,7 +6,6 @@ import {apmsRouter} from './routes/apms.js';
 import {applePayRouter} from './routes/apple-pay.js';
 import {fileURLToPath} from 'url';
 import {flowRouter} from './routes/flow.js';
-import {framesRouter} from './routes/frames.js';
 import {plaidAchRouter} from './routes/plaid-ach.js';
 import {siftRouter} from './routes/sift.js';
 import {upapiRouter} from './routes/upapi.js';
@@ -35,20 +34,15 @@ app.set('view engine', 'ejs');
 
 const pages = {
   '/': 'index',
-  '/apple-pay': 'apple-pay',
   '/braintree': 'braintree',
   '/eps': 'eps',
   '/events': 'events',
   '/failure': 'failure',
-  '/flow': 'flow',
-  '/frames-single': 'frames-single',
-  '/frames-multiple': 'frames-multiple',
   '/giropay': 'giropay',
   '/iframe-wrapper': 'iframe-wrapper',
   '/pan-generator': 'pan-generator',
   '/paypal': 'paypal',
   '/plaid-ach': 'plaid-ach',
-  '/risk-js': 'risk-js',
   '/sift': 'sift',
   '/success': 'success',
   '/trustly': 'trustly',
@@ -56,6 +50,38 @@ const pages = {
 
 Object.entries(pages).forEach(([route, view]) => {
   app.get(route, (req, res) => res.render(view));
+});
+
+app.get('/apple-pay', (req, res) => {
+    res.render('apple-pay', { 
+      checkoutDecryptionMerchantId: process.env.APPLE_PAY_MERCHANT_ID, 
+      merchantDecryptionMerchantId: process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID
+    });
+});
+
+app.get('/flow', (req, res) => {
+    res.render('flow', { 
+      processingChannelId: process.env.CKO_NAS_PROCESSING_CHANNEL_ID, 
+      publicKey: process.env.CKO_NAS_PUBLIC_KEY
+    });
+});
+
+app.get('/frames-single', (req, res) => {
+    res.render('frames-single', { 
+      publicKey: process.env.CKO_NAS_PUBLIC_KEY
+    });
+});
+
+app.get('/frames-multiple', (req, res) => {
+    res.render('frames-multiple', { 
+      publicKey: process.env.CKO_NAS_PUBLIC_KEY
+    });
+});
+
+app.get('/risk-js', (req, res) => {
+    res.render('risk-js', { 
+      publicKey: process.env.CKO_NAS_PUBLIC_KEY
+    });
 });
 
 app.get('/apple-developer-merchantid-domain-association.txt', (req, res) => {
@@ -67,7 +93,6 @@ app.get('/apple-developer-merchantid-domain-association.txt', (req, res) => {
 
 app.use('/', apmsRouter);
 app.use('/', applePayRouter);
-app.use('/', framesRouter);
 app.use('/', plaidAchRouter);
 app.use('/', upapiRouter);
 app.use('/', webhooksRouter);

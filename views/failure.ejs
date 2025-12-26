@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head></head>
-  <body></body>
-  <script>
-    const url = window.location.href
-    document.querySelector('body').innerText = `Redirected to ${url}` 
-  </script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirect Failure Page</title>
+</head>
+<body>
+    <div id="output">Loading location...</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const output = document.getElementById('output');
+            const url = window.location.href;
+            output.textContent = `Redirected to ${url}`;
+        });
+    </script>
+</body>
 </html>
