@@ -1,45 +1,58 @@
-const pan_prefix = document.querySelector('#pan-prefix');
-const pan_length = document.querySelector('#pan-length');
-const num_pans = document.querySelector('#num-pans');
-const button = document.querySelector('#generate-pans-button');
-const pans_div = document.querySelector('#pans-div');
+const panPrefixInput = document.querySelector('#pan-prefix');
+const panLengthInput = document.querySelector('#pan-length');
+const numPansInput = document.querySelector('#num-pans');
+const generateButton = document.querySelector('#generate-pans-button');
+const pansContainer = document.querySelector('#pans-div');
 
-var luhnChk = (function (arr) {
-  return function (ccNum) {
-    var 
-    len = ccNum.length,
-    bit = 1,
-    sum = 0,
-    val;
-    
-    while (len) {
-      val = parseInt(ccNum.charAt(--len), 10);
-      sum += (bit ^= 1) ? arr[val] : val;
+// Luhn Check
+const isLuhnValid = (num) => {
+    let sum = 0;
+    for (let i = 0; i < num.length; i++) {
+        let digit = parseInt(num[num.length - 1 - i], 10);
+        if (i % 2 === 1) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+        }
+        sum += digit;
     }
-    
-    return sum && sum % 10 === 0;
-  };
-}([0, 2, 4, 6, 8, 1, 3, 5, 7, 9]));
+    return sum % 10 === 0;
+};
 
-function generate_pans(){
-
-  pans_div.innerHTML = '';
-
-  for(let a=0; a < num_pans.value; a++){
-    var pan = pan_prefix.value;
-    for(let i = pan_prefix.value.length; i < pan_length.value; i++){
-      pan += Math.floor(Math.random() * 10);
+// Helper to generate a single random PAN
+function createPan(prefix, totalLength) {
+    let pan = prefix;
+    while (pan.length < totalLength) {
+        pan += Math.floor(Math.random() * 10);
     }
-    if(luhnChk(pan)){
-      pans_div.innerHTML += pan + '<br>';
-    }
-    else{
-      a--;
-    }
-  }
-
+    return pan;
 }
 
-button.addEventListener('click', () => {
-  generate_pans();
-});
+function generatePans() {
+    const prefix = panPrefixInput.value.trim();
+    const length = parseInt(panLengthInput.value, 10);
+    const count = parseInt(numPansInput.value, 10);
+    
+    // Basic validation to prevent infinite loops
+    if (!prefix || isNaN(length) || length <= prefix.length) {
+        pansContainer.textContent = "Error: Invalid prefix or length.";
+        return;
+    }
+
+    const results = [];
+    let attempts = 0;
+    const maxAttempts = count * 100; // Safety break
+
+    // Collect strings in an array
+    while (results.length < count && attempts < maxAttempts) {
+        const candidate = createPan(prefix, length);
+        if (isLuhnValid(candidate)) {
+            results.push(candidate);
+        }
+        attempts++;
+    }
+
+    // Bulk DOM update
+    pansContainer.innerHTML = results.join('<br>') + (results.length < count ? '<br>...Max attempts reached' : '');
+}
+
+generateButton.addEventListener('click', generatePans);
