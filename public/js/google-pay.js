@@ -1,9 +1,5 @@
-/**
- * CONFIGURATION
- */
-// Retrieve key from the meta tag in HTML
+// Configuration
 const CHECKOUT_PUBLIC_KEY = document.querySelector('#public-key').dataset.publicKey;
-const ENVIRONMENT = 'TEST'; 
 
 const baseRequest = { apiVersion: 2, apiVersionMinor: 0 };
 
@@ -31,12 +27,10 @@ const cardPaymentMethod = Object.assign(
 
 let paymentsClient = null;
 
-/**
- * INITIALIZATION
- */
+// Initialization
 async function initGooglePay() {
     try {
-        paymentsClient = new google.payments.api.PaymentsClient({ environment: ENVIRONMENT });
+        paymentsClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
 
         const isReadyToPayRequest = Object.assign({}, baseRequest, {
             allowedPaymentMethods: [baseCardPaymentMethod]
@@ -62,9 +56,7 @@ function renderGooglePayButton() {
     document.getElementById('google-pay-button-container').appendChild(button);
 }
 
-/**
- * GOOGLE PAY FLOW
- */
+// Google Pay Flow
 async function onGooglePaymentButtonClicked() {
     const paymentDataRequest = Object.assign({}, baseRequest);
     paymentDataRequest.allowedPaymentMethods = [cardPaymentMethod];
@@ -75,11 +67,12 @@ async function onGooglePaymentButtonClicked() {
         countryCode: 'US'
     };
     paymentDataRequest.merchantInfo = {
-        merchantName: 'Your Checkout.com Store'
+        merchantName: "Jeff's Test Account"
     };
 
     try {
         const paymentData = await paymentsClient.loadPaymentData(paymentDataRequest);
+        console.log('Response from Google Pay SDK PaymentsClient.loadPaymentData(): ', paymentData)
         const googleToken = paymentData.paymentMethodData.tokenizationData.token;
         await handleCheckoutTokenization(googleToken);
     } catch (err) {
@@ -91,15 +84,12 @@ async function onGooglePaymentButtonClicked() {
     }
 }
 
-/**
- * CHECKOUT.COM TOKENIZATION
- */
+// Create Token via Checkout.com
 async function handleCheckoutTokenization(googleTokenJson) {
     const tokenData = JSON.parse(googleTokenJson);
-    const url = 'https://api.sandbox.checkout.com/tokens';
 
     try {
-        const response = await fetch(url, {
+        const tokenResponse = await (await fetch('https://api.sandbox.checkout.com/tokens', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,41 +99,37 @@ async function handleCheckoutTokenization(googleTokenJson) {
                 type: 'googlepay',
                 token_data: tokenData
             })
-        });
+        })).json();
 
-        const data = await response.json();
+        console.log('Response from /tokens: ', tokenResponse);
 
-        if (data.token) {
-            console.log("Success! Checkout Token:", data.token);
-            alert("Payment Token Created: " + data.token);
-            try {
-                /* send to backend */
-                const response = await fetch('/google-pay-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        token: data.token
-                    })
-                });
-
-                // Parse the JSON body from the response
-                const paymentResponse = await response.json();
-
-                console.log("Backend Response:", paymentResponse);
-
-                // update session w/ payment results
-                document.querySelector('#google-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
-                console.log('Server response from running the payment:', paymentResponse)
-
-            } catch (error) {
-                console.error("Error sending token to backend:", error);
-            }
+        if (tokenResponse.token) {
+            await handleCheckoutPayment(tokenResponse.token)
         } else {
-            console.error("Checkout.com Error:", data);
+            console.error("Error from /tokens:", tokenResponse);
         }
     } catch (error) {
-        console.error("Fetch Error:", error);
+        console.error("Fetch error:", error);
+    }
+}
+
+// Run payment via Checkout.com
+async function handleCheckoutPayment(token){
+    try {
+        const paymentResponse = await (await fetch('/google-pay-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: token
+            })
+        })).json();
+
+        document.querySelector('#google-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
+        console.log('Response from /google-pay-payment: ', paymentResponse)
+
+    } catch (error) {
+        console.error("Error sending token to backend:", error);
     }
 }
