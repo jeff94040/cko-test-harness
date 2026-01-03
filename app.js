@@ -49,17 +49,14 @@ app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 const pages = {
   '/': { view: 'index' },
   '/braintree': { view: 'braintree' },
-  '/eps': { view: 'eps' },
   '/events': { view: 'events' },
   '/failure': { view: 'failure' },
-  '/giropay': { view: 'giropay' },
   '/iframe-wrapper': { view: 'iframe-wrapper' },
   '/pan-generator': { view: 'pan-generator' },
   '/paypal': { view: 'paypal' },
   '/plaid-ach': { view: 'plaid-ach' },
   '/sift': { view: 'sift' },
   '/success': { view: 'success' },
-  '/trustly': { view: 'trustly' },
   '/frames-single': { 
     view: 'frames-single', 
     data: { publicKey: process.env.CKO_NAS_PUBLIC_KEY } 
@@ -87,7 +84,8 @@ const pages = {
     view: 'apple-pay',
     data: {
       checkoutDecryptionMerchantId: process.env.APPLE_PAY_MERCHANT_ID, 
-      merchantDecryptionMerchantId: process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID
+      merchantDecryptionMerchantId: process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID,
+      publicKey: process.env.CKO_NAS_PUBLIC_KEY
     }
   }
 };

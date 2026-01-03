@@ -24,13 +24,15 @@
 
   <%- include('navbar'); %>
 
+  <meta id="public-key" data-public-key="<%= publicKey %>">
+
   <script crossorigin src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"> </script>
 
   <div class="m-3 d-flex flex-column" style="gap: 0.25em;">
     <div class="form-floating" style="width: fit-content; min-width: 280px;">
       <select class="form-select form-select-sm" id="pay-in-or-payout">
-        <option value="pay-in" selected>Pay-in</option>
-        <option value="payout">Payout</option>
+        <option value="/apple-pay-payment" selected>Pay-in</option>
+        <option value="/apple-pay-payout">Payout</option>
       </select>
       <label for="pay-in-or-payout">ApplePay Pay-in or Payout?</label>
     </div>
@@ -51,7 +53,7 @@
   </div>
     
   <div class="m-3">
-    <pre id="apple-pay-result"></pre>
+    <pre id="apple-pay-payment-result"></pre>
   </div>
 
   <%- include('bootstrap-js'); %>

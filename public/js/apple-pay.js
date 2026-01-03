@@ -1,126 +1,210 @@
-import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs';
+import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs'
 
-const payInOrPayout = document.querySelector('#pay-in-or-payout')
-const applePayMerchantId = document.querySelector('#checkout-or-merchant-decryption');
-const applePayUnsupportedDiv = document.querySelector('#apple-pay-unsupported')
-const applePayDiv = document.querySelector('#apple-pay')
+const UI = {
+  payInOrPayout : document.querySelector('#pay-in-or-payout'),
+  applePayMerchantId : document.querySelector('#checkout-or-merchant-decryption'),
+  applePayUnsupportedDiv : document.querySelector('#apple-pay-unsupported'),
+  applePayDiv : document.querySelector('#apple-pay'),
+  applePayButton : document.querySelector('apple-pay-button'),
+  applePayPaymentResult : document.querySelector('#apple-pay-payment-result'),
+  publicKey : document.querySelector('#public-key').dataset.publicKey
+}
 
 // Run when the page is fully loaded
-document.addEventListener('DOMContentLoaded', checkApplePaySupport);
+document.addEventListener('DOMContentLoaded', checkApplePaySupport)
 
-// Run whenever the dropdown changes
-applePayMerchantId.addEventListener('change', checkApplePaySupport);
+// Run whenever the dropdown changes, because the Apple Pay Merchant Id changes
+UI.applePayMerchantId.addEventListener('change', checkApplePaySupport)
 
-async function checkApplePaySupport(){
+// Check Support for Apple Pay
+async function checkApplePaySupport() {
 
-  // Basic check: Is the Apple Pay API even available in this browser?
-  if (!window.ApplePaySession) {
-    applePayUnsupportedDiv.innerHTML = "Apple Pay not supported."
+  if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
+    UI.applePayUnsupportedDiv.innerHTML = "Apple Pay is not supported on this device/browser."
+    return;
   }
-  else{
-    try {
-      // Advanced check: Does the device support it AND has a card?
-      console.log(`Apple Pay Merchant ID: ${applePayMerchantId.value}`)
-      const status = await ApplePaySession.applePayCapabilities(applePayMerchantId.value);
-      console.log(`ApplePaySession.applePayCapabilities(): ${status.paymentCredentialStatus}`)
+  
+  try {
+    const status = await ApplePaySession.applePayCapabilities(UI.applePayMerchantId.value)
+    console.log('applePayCapabilities(): ', status.paymentCredentialStatus)
 
-      switch (status.paymentCredentialStatus) {
-        
-        case 'paymentCredentialsAvailable':
-        case 'paymentCredentialsUnavailable':
-        case 'paymentCredentialStatusUnknown':
-          applePayDiv.removeAttribute('style')
-          applePayUnsupportedDiv.innerHTML = ''
-          break;
-
-        case 'applePayUnsupported':
-        default:
-          //applePayDiv.style.display = 'none'
-          applePayUnsupportedDiv.innerHTML = "Apple Pay not supported."
-      }
-    } 
-    catch (error) {
-      console.error("Error checking Apple Pay capabilities:", error);
+    switch (status.paymentCredentialStatus) {
+      case 'applePayUnsupported':
+        UI.applePayUnsupportedDiv.innerHTML = "Apple Pay not supported."
+      default:
+        UI.applePayDiv.style.display = 'block'
     }
+  } 
+  catch (error) {
+    console.error("Error checking Apple Pay capabilities: ", error)
   }
 }
 
 // when user clicks the apple pay button, we must create/begin an apple pay session, validate the merchant, and submit a payment
-document.querySelector('apple-pay-button').addEventListener('click', () => {
-  // create session
-  console.log('Creating new ApplePaySession()')
-  var applePaySession = new ApplePaySession(14, {
+UI.applePayButton.addEventListener('click', () => {
+
+  // Prevent double-clicks causing multiple sessions
+  UI.applePayButton.style.pointerEvents = 'none'
+  UI.applePayButton.style.opacity = '0.5'
+
+  // Determine Apple Pay Version
+  const applePayVersion = (() => {
+    if (typeof ApplePaySession === 'undefined') return 0;
+    for (let v = 18; v > 0; v--) {
+      if (ApplePaySession.supportsVersion(v)) return v;
+    }
+    return 0;
+  })();
+
+  const request = {
     merchantCapabilities: ['supports3DS'],
     supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
     countryCode: 'US',
     requiredBillingContactFields: ["postalAddress"],
     requiredShippingContactFields: ["name", "phone", "email"],
     billingContact: {
-      givenName: faker.person.fullName(), 
+      givenName: faker.person.firstName(), 
+      familyName: faker.person.lastName(),
       addressLines: [faker.location.streetAddress()], 
       locality: faker.location.city(), 
       postalCode: faker.location.zipCode(), 
       administrativeArea: faker.location.state(), 
-      country: "US"
+      countryCode: "US"
     },
     shippingContact: {
-      givenName: faker.person.fullName(), 
-      phoneNumber: faker.phone.number().split(' ')[0],
-      emailAddress: faker.internet.email()
+      phoneNumber: '555' + faker.string.numeric(7),
+      emailAddress: faker.internet.email(),
     },
     total: {label: "Jeff's Test Account", amount: '3.00'},
     lineItems: [{label: 'Widget A', amount: '1.00'}, {label: 'Widget B', amount: '2.00'}],
     currencyCode: 'USD',
-  })
-  // begin session
-  console.log('Calling applePaySession.begin():')
-  applePaySession.begin()
-
-  // validate merchant
-  applePaySession.onvalidatemerchant = async (event) => {
-    console.log('applePaySession.onValidateMerchant() callback details:', event)
-    console.log('Calling /apple-pay-validate-session')
-    console.log('applePayMerchantId.value (latest)', applePayMerchantId.value)
-    const validateSessionResponse = await (await fetch('/apple-pay-validate-session', {
-      method: 'POST',
-      body: JSON.stringify({
-        validationURL: event.validationURL,
-        applePayMerchantId: applePayMerchantId.value
-      }),
-      headers: {'Content-Type': 'application/json'}
-    })).json()
-    console.log('Validate session response from server:', validateSessionResponse)
-    console.log('Calling completeMerchantValidation()')
-    applePaySession.completeMerchantValidation(validateSessionResponse)
   }
 
-  // payment authorized by user
-  applePaySession.onpaymentauthorized = async (event) => {
-    // submit payment
-    console.log('applePaySession.onpaymentauthorized() callback details:', event)
+  // Create Session
+  console.log('Calling ApplePaySession()')
+  var applePaySession = new ApplePaySession(applePayVersion, request)
 
-    const url = payInOrPayout.value === 'pay-in' ? '/apple-pay-payment' : '/apple-pay-payout'
-    const options = {
+  // Begin Session
+  console.log('Calling begin()')
+  applePaySession.begin()
+
+  // Validate Session
+  applePaySession.onvalidatemerchant = async (event) => {
+
+    console.log('Callback onValidateMerchant(): ', event)
+
+    const url = '/apple-pay-validate-session'
+    const request = {
       method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        payment: event.payment,
-        applePayMerchantId: applePayMerchantId.value
-      }),
-      headers: {'Content-Type': 'application/json'}
+        validationURL: event.validationURL,
+        applePayMerchantId: UI.applePayMerchantId.value
+      })
+    }
+    try{
+      const rawValidateSessionResponse = await fetch(url, request)
+      if(!rawValidateSessionResponse.ok) throw new Error(`${url} returned an error`)
+      const validateSessionResponse = await rawValidateSessionResponse.json()
+      console.log('Response from ', url, validateSessionResponse)
+      
+      console.log('Calling completeMerchantValidation()')
+      applePaySession.completeMerchantValidation(validateSessionResponse)
+
+    } catch(error){
+      console.error(error)
+      applePaySession.abort()
+    }
+  }
+
+  // session payment authorized by user
+  applePaySession.onpaymentauthorized = async (event) => {
+    console.log('Callback onpaymentauthorized(): ', event)
+
+    try{
+      const token = await handleCheckoutTokenization(event.payment.token.paymentData)
+      if (!token) throw new Error("Tokenization failed");
+
+      await handleCheckoutPayment(token, applePaySession, event.payment)
+    }
+    catch (error){
+      console.error(error);
+      ApplePaySession.completePayment(ApplePaySession.STATUS_FAILURE);
     }
 
-    console.log('Asking server to run the payment...')
-    const paymentResponse = await (await fetch(url, options)).json()
+  }
 
-    // update session w/ payment results
-    document.querySelector('#apple-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
-    console.log('Server response from running the payment:', paymentResponse)
-
-    if (paymentResponse.approved === true || paymentResponse.status === 'Pending')
-      applePaySession.completePayment(ApplePaySession.STATUS_SUCCESS)
-    else
-      applePaySession.completePayment(ApplePaySession.STATUS_FAILURE)
-
+  applePaySession.oncancel = () => {
+    console.log('Callback oncancel()')
+    UI.applePayButton.style.pointerEvents = 'all';
+    UI.applePayButton.style.opacity = '1';
   }
 
 })
+
+// Create Token via Checkout.com
+async function handleCheckoutTokenization(tokenData) {
+
+    const url = 'https://api.sandbox.checkout.com/tokens'
+    const request = {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': UI.publicKey
+      },
+      body: JSON.stringify({
+          type: 'applepay',
+          token_data: tokenData
+      })
+    }
+
+    try {
+        const rawTokenResponse = await fetch(url, request)
+        if (!rawTokenResponse.ok) return null
+        const tokenResponse = await rawTokenResponse.json()
+        console.log('Response from /tokens: ', tokenResponse)
+
+        if (tokenResponse.token) {
+            //await handleCheckoutPayment(tokenResponse.token)
+            return tokenResponse.token
+        } else {
+            console.error("Error from /tokens:", tokenResponse);
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+}
+
+// Handle Payment via Checkout.com
+async function handleCheckoutPayment(token, applePaySession, payment) {
+
+  console.log('applePaySession: ', applePaySession)
+
+  const url = UI.payInOrPayout.value
+  const request = {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      token: token,
+      applePayMerchantId: UI.applePayMerchantId.value,
+      payment: payment
+    })
+  }
+
+  try {
+    const rawPaymentResponse = await fetch(url, request)
+    if(!rawPaymentResponse.ok) throw new Error(`${url} returned an error`)
+    const paymentResponse = await rawPaymentResponse.json()
+    console.log('Response from ', url, paymentResponse)
+
+    // update session w/ payment results
+    UI.applePayPaymentResult.innerHTML = JSON.stringify(paymentResponse, null, 2)
+
+    const isSuccess = paymentResponse.approved === true || paymentResponse.status === 'Pending'
+    applePaySession.completePayment(isSuccess ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE);
+
+  } catch(error) {
+    console.error(error)
+    applePaySession.completePayment(ApplePaySession.STATUS_FAILURE)
+  }
+}
