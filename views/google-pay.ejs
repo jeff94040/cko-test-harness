@@ -1,23 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <%- include('head', {title: "Google Pay"}); %>
+<%- include('head', {title: "Google Pay"}); %>
 
-  <body>
+<body>
 
-    <%- include('navbar'); %>
+  <style>
+    #google-pay-button-container {
+      width: 160px;
+      height: 40px;
+      display: inline-block;
+    }
+    #google-pay-result {
+      font-size: 0.75rem;
+      background: transparent !important;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
 
-    <meta id="public-key" data-public-key="<%= publicKey %>">
+  <%- include('navbar'); %>
 
-    <div class="m-3" id="google-pay-button-container" style="width: 160px; height: 40px;"></div>
+  <meta id="public-key" data-public-key="<%= publicKey %>">
 
-    <script async src="https://pay.google.com/gp/p/js/pay.js" onload="initGooglePay()"></script>
-    <script src="js/google-pay.js"></script>
- 
-    <pre class="m-3" id="google-pay-result"></pre>
+  <div class="m-3 d-flex flex-column" style="gap: 0.25em;">
+    <div id="google-pay-button-container"></div>
+  </div>
+
+  <div class="m-3">
+    <pre id="google-pay-result"></pre>
+  </div>
     
-    <%- include('bootstrap-js'); %>
+  <script async src="https://pay.google.com/gp/p/js/pay.js" onload="initGooglePay()"></script>
+  <script src="js/google-pay.js"></script>
+ 
+  <%- include('bootstrap-js'); %>
   
-  </body>
+</body>
 
 </html>

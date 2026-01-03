@@ -1,5 +1,9 @@
-// Configuration
-const CHECKOUT_PUBLIC_KEY = document.querySelector('#public-key').dataset.publicKey;
+// Constants
+const publicKey = document.querySelector('#public-key').dataset.publicKey
+const googlePayButtonContainer = document.querySelector('#google-pay-button-container')
+const googlePayResultContainer = document.querySelector('#google-pay-result')
+const gateway = 'checkoutltd'
+const merchantName = 'Jeff\'s Test Account'
 
 const baseRequest = { apiVersion: 2, apiVersionMinor: 0 };
 
@@ -14,8 +18,8 @@ const baseCardPaymentMethod = {
 const tokenizationSpecification = {
     type: 'PAYMENT_GATEWAY',
     parameters: {
-        'gateway': 'checkoutltd',
-        'gatewayMerchantId': CHECKOUT_PUBLIC_KEY
+        'gateway': gateway,
+        'gatewayMerchantId': publicKey
     }
 };
 
@@ -27,7 +31,7 @@ const cardPaymentMethod = Object.assign(
 
 let paymentsClient = null;
 
-// Initialization
+// Initialization - triggered by the onload event handler in the HTML script tag
 async function initGooglePay() {
     try {
         paymentsClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
@@ -53,7 +57,7 @@ function renderGooglePayButton() {
         buttonType: 'pay',
         buttonSizeMode: 'fill' // Fills the Bootstrap column width
     });
-    document.getElementById('google-pay-button-container').appendChild(button);
+    googlePayButtonContainer.appendChild(button);
 }
 
 // Google Pay Flow
@@ -67,12 +71,12 @@ async function onGooglePaymentButtonClicked() {
         countryCode: 'US'
     };
     paymentDataRequest.merchantInfo = {
-        merchantName: "Jeff's Test Account"
+        merchantName: merchantName
     };
 
     try {
         const paymentData = await paymentsClient.loadPaymentData(paymentDataRequest);
-        console.log('Response from Google Pay SDK PaymentsClient.loadPaymentData(): ', paymentData)
+        console.log('Response from Google Pay SDK: ', paymentData)
         const googleToken = paymentData.paymentMethodData.tokenizationData.token;
         await handleCheckoutTokenization(googleToken);
     } catch (err) {
@@ -93,7 +97,7 @@ async function handleCheckoutTokenization(googleTokenJson) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': CHECKOUT_PUBLIC_KEY
+                'Authorization': publicKey
             },
             body: JSON.stringify({
                 type: 'googlepay',
@@ -125,10 +129,10 @@ async function handleCheckoutPayment(token){
                 token: token
             })
         })).json();
-
-        document.querySelector('#google-pay-result').innerHTML = JSON.stringify(paymentResponse, null, 2)
+        
         console.log('Response from /google-pay-payment: ', paymentResponse)
 
+        googlePayResultContainer.innerHTML = JSON.stringify(paymentResponse, null, 2)
     } catch (error) {
         console.error("Error sending token to backend:", error);
     }

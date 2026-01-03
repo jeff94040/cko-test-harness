@@ -15,6 +15,23 @@ import {webhooksRouter} from './routes/webhooks.js';
 
 dotenv.config();
 
+const requiredKeys = [
+  'CKO_PORT',
+  'CKO_NAS_PROCESSING_CHANNEL_ID',
+  'CKO_NAS_SECRET_KEY', 
+  'CKO_NAS_PUBLIC_KEY', 
+  'MONGO_DB_NAME',
+  'MONGO_DB_USER',
+  'MONGO_DB_PASSWORD',
+  'MONGO_DB_CLUSTER_DOMAIN'
+];
+
+requiredKeys.forEach(key => {
+  if (!process.env[key]) {
+    console.warn(`[WARNING]: Missing environment variable: ${key}`);
+  }
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -82,7 +99,6 @@ Object.entries(pages).forEach(([route, config]) => {
   });
 });
 
-app.use('/.well-known', express.static(path.join(__dirname, 'public', '.well-known')));
 
 app.use('/', apmsRouter);
 app.use('/', applePayRouter);
@@ -95,7 +111,10 @@ app.use('/', webhooksRouter);
 
 // Static Assets
 app.use('/vendor/@faker-js/faker', express.static(path.join(__dirname, 'node_modules', '@faker-js', 'faker')));
-app.use(express.static(path.join(__dirname, 'public'), {extensions: ['html'], index: false}));
+app.use(express.static(path.join(__dirname, 'public'), {
+  extensions: ['html'],
+  index: false
+}));
 
 const port = process.env.CKO_PORT || 3000;
 app.listen(port, () => console.log(`Checkout app listening at http://localhost:${port}`));

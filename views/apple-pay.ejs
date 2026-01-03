@@ -5,42 +5,58 @@
 
 <body>
   
+  <style>
+    apple-pay-button {
+      --apple-pay-button-width: 240px;
+      --apple-pay-button-height: 40px;
+      --apple-pay-button-border-radius: 4px;
+      --apple-pay-button-padding: 0px 0px;
+      --apple-pay-button-box-sizing: border-box;
+      display: inline-block;
+    }
+    #apple-pay-result {
+      font-size: 0.75rem;
+      background: transparent !important;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+
   <%- include('navbar'); %>
 
-<script crossorigin src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js" crossorigin="anonymous"> </script>
+  <script crossorigin src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"> </script>
 
-  <div class="m-3">
-    <div class="form-floating">
+  <div class="m-3 d-flex flex-column" style="gap: 0.25em;">
+    <div class="form-floating" style="width: fit-content; min-width: 280px;">
       <select class="form-select form-select-sm" id="pay-in-or-payout">
         <option value="pay-in" selected>Pay-in</option>
         <option value="payout">Payout</option>
       </select>
       <label for="pay-in-or-payout">ApplePay Pay-in or Payout?</label>
     </div>
-    <div class="form-floating">
+
+    <div class="form-floating" style="width: fit-content; min-width: 280px;">
       <select class="form-select form-select-sm" id="checkout-or-merchant-decryption">
-        <option value="<%= merchantDecryptionMerchantId %>" selected>Merchant Decryption</option>
-        <option value="<%= checkoutDecryptionMerchantId %>">Checkout Decryption</option>
+        <option value="<%= checkoutDecryptionMerchantId %>" selected>Checkout Decryption</option>
+        <!--<option value="<%= merchantDecryptionMerchantId %>">Merchant Decryption</option>-->
       </select>
       <label for="checkout-or-merchant-decryption">Checkout or Merchant Decryption?</label>
     </div>
   </div>
+
   <div class="m-3" id="apple-pay-unsupported"></div>
-  <div class="m-3" style="display: none" id="apple-pay">
-    <style>
-      apple-pay-button {
-        --apple-pay-button-width: 240px;
-        --apple-pay-button-height: 40px;
-        --apple-pay-button-border-radius: 4px;
-        --apple-pay-button-padding: 0px 0px;
-        --apple-pay-button-box-sizing: border-box;
-      }
-    </style>
+
+  <div class="m-3" id="apple-pay" style="display: none">
     <apple-pay-button buttonstyle="black" type="plain" locale="en"></apple-pay-button>
   </div>
-  <pre class="m-3" id="apple-pay-result"></pre>
+    
+  <div class="m-3">
+    <pre id="apple-pay-result"></pre>
+  </div>
 
   <%- include('bootstrap-js'); %>
+
   <script type="module" src="js/apple-pay.js"></script>
+
 </body>
 </html>

@@ -3,21 +3,18 @@ import {faker} from '@faker-js/faker'
 
 const googlePayRouter = express.Router()
 
-googlePayRouter.get('/google-pay', (req, res) => {
-  res.status(200)
-})
-
-
 googlePayRouter.post('/google-pay-payment', async (req, res) => {
 
-  console.log('token', req.token)
+  if (!req.body.token) {
+    return res.status(400).json({ error: 'Missing payment token' });
+  }
 
-  const runPaymentUrl = 'https://api.sandbox.checkout.com/payments'
-  const runPaymentOptions = {
+  const url = 'https://api.sandbox.checkout.com/payments'
+  const request = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
+      'Authorization': process.env.CKO_NAS_SECRET_KEY
     },
     body: JSON.stringify({
       'source': {
@@ -31,12 +28,17 @@ googlePayRouter.post('/google-pay-payment', async (req, res) => {
     })
   }
 
-  console.log(`\nSubmitting request to: ${runPaymentUrl}`, runPaymentOptions)
-  const paymentResponse = await (await fetch(runPaymentUrl, runPaymentOptions)).json()
-  console.log(`\nReceived response from: ${runPaymentUrl} `, paymentResponse)
-
-  res.status(200).json(paymentResponse)
-  
+  try{
+    const rawResponse = await fetch(url, request);
+    const response = await rawResponse.json();
+    console.log(`Received response from: ${url}`, response)
+    res.status(rawResponse.status).json(response)
+  } catch (error) {
+      console.error(`Received error from: ${url}`, error);
+      res.status(500).json({ 
+        error: 'Received an error from /payments' 
+      })
+  }
 })
 
 export {googlePayRouter}
