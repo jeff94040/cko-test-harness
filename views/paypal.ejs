@@ -7,18 +7,17 @@
 
   <%- include('navbar'); %>
   
-  <div class="container-fluid">
-    <div style="float:left;">
-      <div id="paypal-button-container"></div>
-      <script src="https://www.paypal.com/sdk/js?client-id=sb&intent=capture&buyer-country=US&merchant-id=CTM2PE2LRYM8Y&enable-funding=venmo" data-partner-attribution-id="CheckoutLtd_PSP"></script>
-    </div>
-    <div style="float:left; clear:both">
-      <pre class="form-control" id="response-pre"></pre>
-    </div>
+  <div class="container-fluid mt-3">
+    <div id="paypal-button-container" style="width: 240px;"></div>
+    <pre id="paypal-payment-result" class="mt-3"></pre>
   </div>
-
+  
   <%- include('bootstrap-js'); %>
+
+  <script src="https://www.paypal.com/sdk/js?client-id=<%= paypalClientId %>&intent=capture&buyer-country=US&merchant-id=<%= paypalMerchantId %>&enable-funding=venmo" data-partner-attribution-id="CheckoutLtd_PSP"></script>
+  
   <script type="module" src="js/paypal.js"></script>
+
 </body>
 
 </html>

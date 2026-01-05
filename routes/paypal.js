@@ -3,11 +3,11 @@ import express from 'express'
 import {faker} from '@faker-js/faker'
 import fetch from 'node-fetch'
 
-const apmsRouter = express.Router();
+const paypalRouter = express.Router();
 
 dotenv.config();
 
-apmsRouter.post('/create-apm-url', async (req, res) => {
+paypalRouter.post('/paypal-payment-context', async (req, res) => {
 
   req.body.reference = `REF-${faker.string.alphanumeric({ length: 5, casing: 'upper' })}`
   req.body.success_url = process.env.SUCCESS_URL
@@ -34,7 +34,7 @@ apmsRouter.post('/create-apm-url', async (req, res) => {
 
 })
 
-apmsRouter.post('/run-apm-payment', async (req, res) => {
+paypalRouter.post('/paypal-payment', async (req, res) => {
 
   const url = 'https://api.sandbox.checkout.com/payments'
   const request = {
@@ -58,4 +58,4 @@ apmsRouter.post('/run-apm-payment', async (req, res) => {
 
 })
 
-export {apmsRouter}; 
+export {paypalRouter}; 

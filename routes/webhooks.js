@@ -33,12 +33,9 @@ db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_
 // webhook listener
 webhooksRouter.post('/event-listener/:accountStructure', async (req, res) => {
 
-  console.log(`received ${req.params.accountStructure} event notification...`);
-  console.log(req.headers);
-  console.log(req.body);
+  console.log('received webhook: ', req.headers, req.body);
 
   // Verify authenticity of CKO event notification
-
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
   const hmac_password = process.env.CKO_NAS_WEBHOOK_KEY;
@@ -49,8 +46,6 @@ webhooksRouter.post('/event-listener/:accountStructure', async (req, res) => {
 
   // if signature matches, write event to DB
   if(server_signature === client_signature){
-
-    //console.log('signature match...');
 
     const event = new Event({any: {path: req.path, headers: req.headers, body: req.body}});
 

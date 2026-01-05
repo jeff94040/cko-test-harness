@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import path from 'path';
 import {fileURLToPath} from 'url';
 
-import {apmsRouter} from './routes/apms.js';
+import {paypalRouter} from './routes/paypal.js';
 import {applePayRouter} from './routes/apple-pay.js';
 import {googlePayRouter} from './routes/google-pay.js';
 import {flowRouter} from './routes/flow.js';
@@ -53,7 +53,13 @@ const pages = {
   '/failure': { view: 'failure' },
   '/iframe-wrapper': { view: 'iframe-wrapper' },
   '/pan-generator': { view: 'pan-generator' },
-  '/paypal': { view: 'paypal' },
+  '/paypal': { 
+    view: 'paypal', 
+    data: { 
+      paypalMerchantId: process.env.PAYPAL_MERCHANT_ID,
+      paypalClientId: process.env.PAYPAL_CLIENT_ID
+     }
+  },
   '/plaid-ach': { view: 'plaid-ach' },
   '/sift': { view: 'sift' },
   '/success': { view: 'success' },
@@ -98,10 +104,10 @@ Object.entries(pages).forEach(([route, config]) => {
 });
 
 
-app.use('/', apmsRouter);
 app.use('/', applePayRouter);
 app.use('/', flowRouter);
 app.use('/', googlePayRouter);
+app.use('/', paypalRouter);
 app.use('/', plaidAchRouter);
 app.use('/', siftRouter)
 app.use('/', upapiRouter);
