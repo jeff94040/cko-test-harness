@@ -1,12 +1,8 @@
-import dotenv from 'dotenv'
-import express from 'express'
-import {Faker, faker} from '@faker-js/faker'
+import {Router} from 'express'
+import {faker} from '@faker-js/faker'
 import fetch from 'node-fetch' 
 
-//import config props from .env file
-dotenv.config();
-
-const plaidAchRouter = express.Router();
+const plaidAchRouter = Router();
 
 // plaid - create link token
 plaidAchRouter.get('/plaid/link-token', async (req, res) => {

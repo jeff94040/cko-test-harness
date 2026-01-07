@@ -1,20 +1,24 @@
 // declare output div
-const outputDiv = document.querySelector('#output')
-const button = document.querySelector('#button')
-const publicKey = document.querySelector('#public-key')
+const UI = {
+  deviceSessionIdOutput: document.querySelector('#device-session-id-output'),
+  button: document.querySelector('#button'),
+  publicKey: document.querySelector('#public-key')
+}
 
 // get device session id and populate output div on click
-button.addEventListener('click', async () => {
+UI.button.addEventListener('click', async () => {
 
-  button.disabled = true
+  UI.button.disabled = true
 
   try{
-    const risk = window.Risk.init(publicKey.value)
+    const risk = window.Risk.init(UI.publicKey.value)
     const deviceSessionId = await risk.publishRiskData(); // dsid_XXXX
-    outputDiv.insertAdjacentHTML('beforeend', `<div>Your device session ID is: <code>${deviceSessionId}</code></div>`); button.disabled = false;
+    UI.deviceSessionIdOutput.insertAdjacentHTML('beforeend', `<div>Your device session ID is: <code>${deviceSessionId}</code></div>`); 
+    UI.button.disabled = false;
   }
-  catch (err){
-    console.error("Risk SDK Error:", err);
-    outputDiv.insertAdjacentHTML('beforeend', `<div>Error: ${err.message || 'Verification failed.'}</div>`);
-    button.disabled = false;  }
+  catch (error){
+    console.error(error);
+    UI.deviceSessionIdOutput.insertAdjacentHTML('beforeend', `<div>Error: ${error.message || 'Verification failed.'}</div>`);
+    UI.button.disabled = false;
+  }
 }) 

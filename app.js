@@ -1,8 +1,10 @@
-import dotenv from 'dotenv'; 
+import 'dotenv/config'
+
 import express from 'express';
 import helmet from 'helmet';
 import path from 'path';
 import {fileURLToPath} from 'url';
+import mongoose from 'mongoose'; // 1. Added mongoose import
 
 import {paypalRouter} from './routes/paypal.js';
 import {applePayRouter} from './routes/apple-pay.js';
@@ -12,8 +14,6 @@ import {plaidAchRouter} from './routes/plaid-ach.js';
 import {siftRouter} from './routes/sift.js';
 import {upapiRouter} from './routes/upapi.js';
 import {webhooksRouter} from './routes/webhooks.js';
-
-dotenv.config();
 
 const requiredKeys = [
   'CKO_PORT',
@@ -31,6 +31,12 @@ requiredKeys.forEach(key => {
     console.warn(`[WARNING]: Missing environment variable: ${key}`);
   }
 });
+
+// 2. Database Connection Logic
+const mongoUri = `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@${process.env.MONGO_DB_CLUSTER_DOMAIN}/`;
+mongoose.connect(mongoUri, { dbName: process.env.MONGO_DB_NAME })
+  .then(() => console.log('Connected to MongoDB via app.js'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

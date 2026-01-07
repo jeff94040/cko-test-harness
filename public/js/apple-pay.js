@@ -103,13 +103,14 @@ UI.applePayButton.addEventListener('click', () => {
       })
     }
     try{
-      const rawValidateSessionResponse = await fetch(url, request)
-      if(!rawValidateSessionResponse.ok) throw new Error(`${url} returned an error`)
-      const validateSessionResponse = await rawValidateSessionResponse.json()
-      console.log('Response from ', url, validateSessionResponse)
+      const rawResponse = await fetch(url, request)
+      if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
+      
+      const response = await rawResponse.json()
+      console.log({url: url, status: rawResponse.status, response: response})
       
       console.log('Calling completeMerchantValidation()')
-      applePaySession.completeMerchantValidation(validateSessionResponse)
+      applePaySession.completeMerchantValidation(response)
 
     } catch(error){
       console.error(error)
@@ -148,10 +149,7 @@ async function handleCheckoutTokenization(tokenData) {
     const url = 'https://api.sandbox.checkout.com/tokens'
     const request = {
       method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'Authorization': UI.publicKey
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': UI.publicKey },
       body: JSON.stringify({
           type: 'applepay',
           token_data: tokenData
@@ -159,19 +157,18 @@ async function handleCheckoutTokenization(tokenData) {
     }
 
     try {
-        const rawTokenResponse = await fetch(url, request)
-        if (!rawTokenResponse.ok) return null
-        const tokenResponse = await rawTokenResponse.json()
-        console.log('Response from /tokens: ', tokenResponse)
+      const rawResponse = await fetch(url, request);
+      if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
 
-        if (tokenResponse.token) {
-            //await handleCheckoutPayment(tokenResponse.token)
-            return tokenResponse.token
-        } else {
-            console.error("Error from /tokens:", tokenResponse);
-        }
+      const response = await rawResponse.json()
+      console.log({url: url, status: rawResponse.status, response: response})
+
+      if (response.token) {
+          //await handleCheckoutPayment(tokenResponse.token)
+          return response.token
+      } 
     } catch (error) {
-        console.error("Fetch error:", error);
+      console.error(error);
     }
 }
 
@@ -192,15 +189,16 @@ async function handleCheckoutPayment(token, applePaySession, payment) {
   }
 
   try {
-    const rawPaymentResponse = await fetch(url, request)
-    if(!rawPaymentResponse.ok) throw new Error(`${url} returned an error`)
-    const paymentResponse = await rawPaymentResponse.json()
-    console.log('Response from ', url, paymentResponse)
+    const rawResponse = await fetch(url, request);
+    if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
+
+    const response = await rawResponse.json()
+    console.log({url: url, status: rawResponse.status, response: response})
 
     // update session w/ payment results
-    UI.applePayPaymentResult.innerHTML = JSON.stringify(paymentResponse, null, 2)
+    UI.applePayPaymentResult.innerHTML = JSON.stringify(response, null, 2)
 
-    const isSuccess = paymentResponse.approved === true || paymentResponse.status === 'Pending'
+    const isSuccess = response.approved === true || response.status === 'Pending'
     applePaySession.completePayment(isSuccess ? ApplePaySession.STATUS_SUCCESS : ApplePaySession.STATUS_FAILURE);
 
   } catch(error) {

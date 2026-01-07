@@ -1,7 +1,10 @@
 // Constants
-const publicKey = document.querySelector('#public-key').dataset.publicKey
-const googlePayButtonContainer = document.querySelector('#google-pay-button-container')
-const googlePayResultContainer = document.querySelector('#google-pay-result')
+const UI = {
+    publicKey: document.querySelector('#public-key').dataset.publicKey,
+    googlePayButtonContainer: document.querySelector('#google-pay-button-container'),
+    googlePayResultContainer: document.querySelector('#google-pay-result'),
+}
+
 const gateway = 'checkoutltd'
 const merchantName = 'Jeff\'s Test Account'
 
@@ -19,7 +22,7 @@ const tokenizationSpecification = {
     type: 'PAYMENT_GATEWAY',
     parameters: {
         'gateway': gateway,
-        'gatewayMerchantId': publicKey
+        'gatewayMerchantId': UI.publicKey
     }
 };
 
@@ -57,7 +60,7 @@ function renderGooglePayButton() {
         buttonType: 'pay',
         buttonSizeMode: 'fill' // Fills the Bootstrap column width
     });
-    googlePayButtonContainer.appendChild(button);
+    UI.googlePayButtonContainer.appendChild(button);
 }
 
 // Google Pay Flow
@@ -92,35 +95,40 @@ async function onGooglePaymentButtonClicked() {
 async function handleCheckoutTokenization(googleTokenJson) {
     const tokenData = JSON.parse(googleTokenJson);
 
+    const url = 'https://api.sandbox.checkout.com/tokens'
+    const tokenRequest = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': UI.publicKey
+        },
+        body: JSON.stringify({
+            type: 'googlepay',
+            token_data: tokenData
+        })
+    }
+
     try {
-        const tokenResponse = await (await fetch('https://api.sandbox.checkout.com/tokens', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': publicKey
-            },
-            body: JSON.stringify({
-                type: 'googlepay',
-                token_data: tokenData
-            })
-        })).json();
 
-        console.log('Response from /tokens: ', tokenResponse);
+        const rawResponse = await fetch(url, tokenRequest)
+        if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
 
-        if (tokenResponse.token) {
-            await handleCheckoutPayment(tokenResponse.token)
-        } else {
-            console.error("Error from /tokens:", tokenResponse);
-        }
+        const response = await rawResponse.json()
+        console.log({url: url, status: rawResponse.status, response: response})
+
+        await handleCheckoutPayment(response.token)
+
     } catch (error) {
-        console.error("Fetch error:", error);
+        console.error(error);
     }
 }
 
 // Run payment via Checkout.com
 async function handleCheckoutPayment(token){
     try {
-        const paymentResponse = await (await fetch('/google-pay-payment', {
+
+        const url = '/google-pay-payment'
+        const request = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -128,12 +136,16 @@ async function handleCheckoutPayment(token){
             body: JSON.stringify({
                 token: token
             })
-        })).json();
-        
-        console.log('Response from /google-pay-payment: ', paymentResponse)
+        }
 
-        googlePayResultContainer.innerHTML = JSON.stringify(paymentResponse, null, 2)
+        const rawResponse = await fetch(url, request)
+        if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
+
+        const response = await rawResponse.json()
+        console.log({url: url, status: rawResponse.status, response: response})
+        
+        UI.googlePayResultContainer.innerHTML = JSON.stringify(response, null, 2)
     } catch (error) {
-        console.error("Error sending token to backend:", error);
+        console.error(error);
     }
 }

@@ -1,46 +1,23 @@
-import crypto from 'crypto'
-import express from 'express'
+import {createHmac} from 'crypto'
+import {Router} from 'express'
 import mongoose from 'mongoose'
 
-const webhooksRouter = express.Router();
+const webhooksRouter = Router();
 
-// mongo database credentials
-const mongo_db_user = process.env.MONGO_DB_USER;
-const mongo_db_password = process.env.MONGO_DB_PASSWORD;
-const mongo_db_cluster_domain = process.env.MONGO_DB_CLUSTER_DOMAIN;
-const mongo_db_name = process.env.MONGO_DB_NAME;
+// Database models
+const Event = mongoose.models.Event || mongoose.model('Event', new mongoose.Schema({ any: {} }))
 
-// database schema
-const eventSchema = new mongoose.Schema({any: {}});
-const keySchema = new mongoose.Schema({structure: String, secret_key: String, public_key: String});
-
-// database model
-const Event = mongoose.model('Event', eventSchema);
-const Key = mongoose.model('Key', keySchema);
-
-// initialize database connection
-mongoose.connect(`mongodb+srv://${mongo_db_user}:${mongo_db_password}@${mongo_db_cluster_domain}/`, {dbName: 'cko_test_harness'});
-
-// connection object
-const db = mongoose.connection;
-
-// fires on database connection error
-db.on('error', console.error.bind(console, 'connection error:'));
-
-// fires on successful database connection
-db.once('open', function() { console.log(`Connected to mongodb+srv://${mongo_db_user}:*****@${mongo_db_cluster_domain}/${mongo_db_name}`) });
-
-// webhook listener
+// Webhook listener
 webhooksRouter.post('/event-listener/:accountStructure', async (req, res) => {
 
-  console.log('received webhook: ', req.headers, req.body);
+  console.log('webhook received', req.body.id, req.body.type);
 
   // Verify authenticity of CKO event notification
   const server_signature = req.header('cko-signature'); // the cko-signature header
   const stringified_body = JSON.stringify(req.body); // the request body
   const hmac_password = process.env.CKO_NAS_WEBHOOK_KEY;
 
-  const client_signature = crypto.createHmac('sha256', hmac_password)
+  const client_signature = createHmac('sha256', hmac_password)
     .update(stringified_body)
     .digest('hex');
 
@@ -51,7 +28,7 @@ webhooksRouter.post('/event-listener/:accountStructure', async (req, res) => {
 
     try {
       await event.save();
-      console.log('wrote event to database...');
+      console.log('webhook written to database', req.body.id, req.body.type);
       res.status(200).end();
     } catch (err) {
       console.error(err);
@@ -60,11 +37,13 @@ webhooksRouter.post('/event-listener/:accountStructure', async (req, res) => {
 
   }
   else{
-    console.log('signature mismatch...');
-    console.log(`hmac_password: ${hmac_password}`)
-    console.log(`server signature: ${server_signature}`);
-    console.log(`client signature: ${client_signature}`);
-    console.log(`stringified body: ${stringified_body}`)
+    console.log({
+      result: 'signature mismatch',
+      hmac_password: hmac_password,
+      server_signature: server_signature,
+      client_signature: client_signature,
+      payload: req.body
+    })
   }
 
 });

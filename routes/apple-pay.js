@@ -1,5 +1,4 @@
-import dotenv from 'dotenv'
-import express, { raw } from 'express'
+import {Router} from 'express'
 import {faker} from '@faker-js/faker'
 import fetch from 'node-fetch'
 import fs from 'fs'
@@ -9,9 +8,7 @@ import ApplePayJs from '@basis-theory/apple-pay-js';
 
 const { ApplePaymentTokenContext } = ApplePayJs;
 
-const applePayRouter = express.Router();
-
-dotenv.config();
+const applePayRouter = Router();
 
 // Validate Session
 applePayRouter.post('/apple-pay-validate-session', async (req, res) => {

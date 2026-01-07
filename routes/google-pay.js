@@ -1,7 +1,7 @@
-import express from 'express'
+import {Router} from 'express'
 import {faker} from '@faker-js/faker'
 
-const googlePayRouter = express.Router()
+const googlePayRouter = Router()
 
 googlePayRouter.post('/google-pay-payment', async (req, res) => {
 

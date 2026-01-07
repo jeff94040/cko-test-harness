@@ -1,11 +1,7 @@
-import dotenv from 'dotenv'
-import express from 'express'
+import {Router} from 'express'
 import fetch from 'node-fetch' 
 
-//import config props from .env file
-dotenv.config();
-
-const upapiRouter = express.Router();
+const upapiRouter = Router();
 
 // REST API listens for async fetch() requests from client browser & invokes CKO API
 upapiRouter.post('/fetch-api-request', async (req, res) => {

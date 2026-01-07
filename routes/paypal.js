@@ -1,11 +1,8 @@
-import dotenv from 'dotenv'
-import express from 'express'
+import {Router} from 'express'
 import {faker} from '@faker-js/faker'
 import fetch from 'node-fetch'
 
-const paypalRouter = express.Router();
-
-dotenv.config();
+const paypalRouter = Router();
 
 paypalRouter.post('/paypal-payment-context', async (req, res) => {
 
@@ -13,10 +10,9 @@ paypalRouter.post('/paypal-payment-context', async (req, res) => {
   req.body.success_url = process.env.SUCCESS_URL
   req.body.failure_url = process.env.FAILURE_URL
   req.body.capture = 'true'
-  req.body.processing_channel_id = process.env.CKO_NAS_PROCESSING_CHANNEL_ID 
+  req.body.processing_channel_id = process.env.CKO_NAS_PROCESSING_CHANNEL_ID
 
   const url = 'https://api.sandbox.checkout.com/payment-contexts'
-
   const request = {
     method: 'POST', 
     headers: {
@@ -26,11 +22,18 @@ paypalRouter.post('/paypal-payment-context', async (req, res) => {
     body: JSON.stringify(req.body)
   }
 
-  const rawResponse = await fetch(url, request)
-  const response = await rawResponse.json()
-  console.log('Received response from: ', url, response)
+  try{
+    const rawResponse = await fetch(url, request);
+    if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
 
-  res.status(200).json(response)
+    const response = await rawResponse.json()
+    console.log({url: url, status: rawResponse.status, response: response})
+
+    res.json(response)
+  } catch (error) {
+    console.error(error)
+    res.status(error.status || 500).end()
+  }
 
 })
 
@@ -44,17 +47,23 @@ paypalRouter.post('/paypal-payment', async (req, res) => {
       'Authorization': `${process.env.CKO_NAS_SECRET_KEY}`
     },
     body: JSON.stringify({
-      'payment_context_id': req.body.paypalPaymentContext,
+      'payment_context_id': req.body.contextID,
       'processing_channel_id': process.env.CKO_NAS_PROCESSING_CHANNEL_ID
     })
   }
 
-  const rawResponse = await fetch(url, request)
-  const response = await rawResponse.json()
-  
-  console.log('Received response from: ', url, response)
+  try{
+    const rawResponse = await fetch(url, request);
+    if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
 
-  res.status(200).json(response)
+    const response = await rawResponse.json()
+    console.log({url: url, status: rawResponse.status, response: response})
+
+    res.json(response)
+  } catch (error) {
+    console.error(error)
+    res.status(error.status || 500).end()
+  }
 
 })
 
