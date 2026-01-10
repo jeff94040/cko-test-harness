@@ -89,7 +89,9 @@ const pages = {
     view: 'flow', 
     data: { 
       publicKey: process.env.CKO_NAS_PUBLIC_KEY, 
-      processingChannelId: process.env.CKO_NAS_PROCESSING_CHANNEL_ID 
+      processingChannelId: process.env.CKO_NAS_PROCESSING_CHANNEL_ID ,
+      successUrl: process.env.SUCCESS_URL,
+      failureUrl: process.env.FAILURE_URL
     } 
   },
   '/apple-pay': {
