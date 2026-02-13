@@ -11,8 +11,7 @@ document.getElementById('payment-form').addEventListener('submit', async functio
     const expiryYear = document.getElementById('expiryYear').value;
 
     // 2. Configuration
-    // Public Key
-    // const publicKey = 'pk_sbox_wzfdx5reewvfgcdgyky4pdgbemc';
+    // 'pk_sbox_xxx';
     const publicKey =   document.querySelector('#public-key').dataset.publicKey
 
     const url = 'https://api.sandbox.checkout.com/tokens';
