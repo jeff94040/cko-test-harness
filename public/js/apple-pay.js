@@ -55,11 +55,16 @@ UI.applePayButton.addEventListener('click', () => {
     }
     return 0;
   })();
+  console.log('Apple Pay Version:', applePayVersion)
+  console.log('Apple Pay Merchant ID:', UI.applePayMerchantId.value)
 
   const request = {
+    countryCode: 'US',
+    currencyCode: 'USD',
     merchantCapabilities: ['supports3DS'],
     supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
-    countryCode: 'US',
+    total: {label: "Jeff's Test Account", amount: '3.00'},
+    lineItems: [{label: 'Widget A', amount: '1.00'}, {label: 'Widget B', amount: '2.00'}],
     requiredBillingContactFields: ["postalAddress"],
     requiredShippingContactFields: ["name", "phone", "email"],
     billingContact: {
@@ -75,9 +80,20 @@ UI.applePayButton.addEventListener('click', () => {
       phoneNumber: '555' + faker.string.numeric(7),
       emailAddress: faker.internet.email(),
     },
-    total: {label: "Jeff's Test Account", amount: '3.00'},
-    lineItems: [{label: 'Widget A', amount: '1.00'}, {label: 'Widget B', amount: '2.00'}],
-    currencyCode: 'USD',
+    // --- MPAN REQUEST LOGIC START ---
+    recurringPaymentRequest: {
+        paymentDescription: "Monthly Membership",
+        regularBilling: {
+          label: "Monthly Subscription",
+          amount: "3.00",
+          paymentTiming: "recurring", // Required in 2026
+          recurringPaymentStartDate: new Date().toISOString() // Recommended
+        },
+        billingAgreement: "I authorize a monthly charge of $3.00.",
+        managementURL: "https://cko.jeff94040.com",
+        tokenNotificationURL: "https://cko.jeff94040.com"
+      }
+    // --- MPAN REQUEST LOGIC END ---
   }
 
   // Create Session

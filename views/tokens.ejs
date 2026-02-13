@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('head', {title: "Tokens"}); %>
+
+<body>
+
+    <%- include('navbar'); %>
+
+    <div class="container-fluid">
+        <meta id="public-key" data-public-key="<%= publicKey %>">
+
+        <div style="float: left; min-width: 300px;"> <form id="payment-form">
+                
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="cardNumber" placeholder="Card Number" required maxlength="19">
+                    <label for="cardNumber">Card Number</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="cvv" placeholder="CVV" required maxlength="4">
+                    <label for="cvv">CVV</label>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="expiryMonth" placeholder="MM" required maxlength="2">
+                            <label for="expiryMonth">Month (MM)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="expiryYear" placeholder="YYYY" required maxlength="4">
+                            <label for="expiryYear">Year (YYYY)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" id="submitBtn" class="btn btn-secondary">Tokenize Card</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="ms-3" id="response" style="float: left; font-family: monospace;">
+            </div>
+    </div>
+
+    <%- include('bootstrap-js'); %>
+    <script src="https://checkout-web-components.checkout.com/index.js"></script>
+    <script type="module" src="js/tokens.js"></script>
+
+</body>
+</html>

@@ -55,6 +55,10 @@ app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 const pages = {
   '/': { view: 'index' },
   '/braintree': { view: 'braintree' },
+  '/tokens': { 
+    view: 'tokens',
+    data: { publicKey: process.env.CKO_NAS_PUBLIC_KEY } 
+  },
   '/events': { view: 'events' },
   '/failure': { view: 'failure' },
   '/iframe-wrapper': { view: 'iframe-wrapper' },
