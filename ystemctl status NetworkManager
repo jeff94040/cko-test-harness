@@ -1,0 +1,16 @@
+[0;1;32m●[0m systemd-networkd.service - Network Configuration
+     Loaded: loaded (]8;;file://pi5/usr/lib/systemd/system/systemd-networkd.service/usr/lib/systemd/system/systemd-networkd.service]8;;; enabled-runtime; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-02-27 03:20:59 UTC; 20h ago
+TriggeredBy: [0;1;32m●[0m systemd-networkd.socket
+       Docs: ]8;;man:systemd-networkd.service(8)man:systemd-networkd.service(8)]8;;
+             ]8;;man:org.freedesktop.network1(5)man:org.freedesktop.network1(5)]8;;
+   Main PID: 743 (systemd-network)
+     Status: "[0;1;36mProcessing requests...[0m"
+      Tasks: 1 (limit: 18707)
+   FD Store: 0[0;38;5;245m (limit: 512)[0m
+     Memory: 3.1M (peak: 3.6M)
+        CPU: 815ms
+     CGroup: /system.slice/systemd-networkd.service
+             └─[0;38;5;245m743 /usr/lib/systemd/systemd-networkd[0m
+
+Warning: some journal files were not opened due to insufficient permissions.
