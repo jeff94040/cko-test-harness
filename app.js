@@ -101,8 +101,7 @@ const pages = {
   '/apple-pay': {
     view: 'apple-pay',
     data: {
-      checkoutDecryptionMerchantId: process.env.APPLE_PAY_MERCHANT_ID, 
-      merchantDecryptionMerchantId: process.env.APPLE_PAY_DECRYPTION_MERCHANT_ID,
+      applePayMerchantId: process.env.APPLE_PAY_MERCHANT_ID, 
       publicKey: process.env.CKO_NAS_PUBLIC_KEY
     }
   }

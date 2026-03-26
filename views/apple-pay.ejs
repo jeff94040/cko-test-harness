@@ -24,7 +24,8 @@
 
   <%- include('navbar'); %>
 
-  <meta id="public-key" data-public-key="<%= publicKey %>">
+  <meta id="apple-pay-merchant-id" data-apple-pay-merchant-id = "<%= applePayMerchantId %>">
+  <meta id="public-key" data-public-key = "<%= publicKey %>">
 
   <script crossorigin src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"> </script>
 
@@ -34,25 +35,16 @@
         <option value="/apple-pay-payment" selected>Pay-in</option>
         <option value="/apple-pay-payout">Payout</option>
       </select>
-      <label for="pay-in-or-payout">ApplePay Pay-in or Payout?</label>
+      <label for="pay-in-or-payout">Pay-in or Payout?</label>
     </div>
-
-    <div class="form-floating" style="width: fit-content; min-width: 280px;">
-      <select class="form-select form-select-sm" id="checkout-or-merchant-decryption">
-        <option value="<%= checkoutDecryptionMerchantId %>" selected>Checkout Decryption</option>
-        <!--<option value="<%= merchantDecryptionMerchantId %>">Merchant Decryption</option>-->
-      </select>
-      <label for="checkout-or-merchant-decryption">Checkout or Merchant Decryption?</label>
-    </div>
-  </div>
-
-  <div class="m-3" id="apple-pay-unsupported"></div>
 
   <div class="m-3" id="apple-pay" style="display: none">
     <apple-pay-button buttonstyle="black" type="plain" locale="en"></apple-pay-button>
   </div>
-    
+
   <pre id="apple-pay-payment-result" class="m-3"></pre>
+
+  <div class="m-3" id="apple-pay-unsupported"></div>
 
   <%- include('bootstrap-js'); %>
 

@@ -2,7 +2,7 @@ import { faker } from '/vendor/@faker-js/faker/dist/esm/locale/en_US.mjs'
 
 const UI = {
   payInOrPayout : document.querySelector('#pay-in-or-payout'),
-  applePayMerchantId : document.querySelector('#checkout-or-merchant-decryption'),
+  applePayMerchantId : document.querySelector('#apple-pay-merchant-id').dataset.applePayMerchantId,
   applePayUnsupportedDiv : document.querySelector('#apple-pay-unsupported'),
   applePayDiv : document.querySelector('#apple-pay'),
   applePayButton : document.querySelector('apple-pay-button'),
@@ -10,14 +10,15 @@ const UI = {
   publicKey : document.querySelector('#public-key').dataset.publicKey
 }
 
+
 // Run when the page is fully loaded
 document.addEventListener('DOMContentLoaded', checkApplePaySupport)
 
 // Run whenever the dropdown changes, because the Apple Pay Merchant Id changes
-UI.applePayMerchantId.addEventListener('change', checkApplePaySupport)
 
 // Check Support for Apple Pay
 async function checkApplePaySupport() {
+
 
   if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
     UI.applePayUnsupportedDiv.innerHTML = "Apple Pay is not supported on this device/browser."
@@ -25,7 +26,7 @@ async function checkApplePaySupport() {
   }
   
   try {
-    const status = await ApplePaySession.applePayCapabilities(UI.applePayMerchantId.value)
+    const status = await ApplePaySession.applePayCapabilities(UI.applePayMerchantId)
     console.log('applePayCapabilities(): ', status.paymentCredentialStatus)
 
     switch (status.paymentCredentialStatus) {
@@ -56,7 +57,7 @@ UI.applePayButton.addEventListener('click', () => {
     return 0;
   })();
   console.log('Apple Pay Version:', applePayVersion)
-  console.log('Apple Pay Merchant ID:', UI.applePayMerchantId.value)
+  console.log('Apple Pay Merchant ID:', UI.applePayMerchantId)
 
   const request = {
     countryCode: 'US',
@@ -115,7 +116,7 @@ UI.applePayButton.addEventListener('click', () => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         validationURL: event.validationURL,
-        applePayMerchantId: UI.applePayMerchantId.value
+        applePayMerchantId: UI.applePayMerchantId
       })
     }
     try{
@@ -199,7 +200,7 @@ async function handleCheckoutPayment(token, applePaySession, payment) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
       token: token,
-      applePayMerchantId: UI.applePayMerchantId.value,
+      applePayMerchantId: UI.applePayMerchantId,
       payment: payment
     })
   }
