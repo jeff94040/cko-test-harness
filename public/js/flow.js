@@ -112,7 +112,7 @@ async function renderPaymentComponents() {
 
   // 3. Logic: UI rules for Tokenization
   const componentTypeSelect = UI.componentTypeDropdown.options[UI.componentTypeDropdown.selectedIndex].text;
-  if (componentTypeSelect === 'card (tokenization only)') {
+  if (componentTypeSelect === 'card (tokenization only)' || componentTypeSelect === 'card_cvv') {
     UI.payButtonDropdown.value = 'false';
     UI.payButtonDropdown.setAttribute('disabled', '');
   } else {
@@ -151,15 +151,15 @@ async function renderPaymentComponents() {
       
       onReady: () => {
         logEvent('onReady()', {});
-        const useMerchantButton = UI.payButtonDropdown.value === 'false' && componentTypeSelect !== 'card (tokenization only)';
+        const useMerchantButton = UI.payButtonDropdown.value === 'false' && componentTypeSelect !== 'card (tokenization only)' && componentTypeSelect !== 'card_cvv';
         if (useMerchantButton) UI.merchantOwnedPayButton.classList.remove('invisible');
       },
       onChange: async () => {
         logEvent('onChange()', {});
         if (state.component && state.component.isValid()) {
           UI.merchantOwnedPayButton.removeAttribute('disabled');
-          if (componentTypeSelect === 'card (tokenization only)') {
-            logEvent('tokenizing...', await state.component.tokenize());
+          if (componentTypeSelect === 'card (tokenization only)' || componentTypeSelect === 'card_cvv') {
+            logEvent('tokenize()', await state.component.tokenize());
           }
         } else {
           UI.merchantOwnedPayButton.setAttribute('disabled', '');
@@ -172,7 +172,8 @@ async function renderPaymentComponents() {
     // 6. Create Component Instance
     state.component = checkout.create(UI.componentTypeDropdown.value, {
       showPayButton: UI.payButtonDropdown.value === 'true',
-      onTokenized: (self, res) => logEvent('onTokenized()', res),
+      // onTokenized fires on tokenization only, but not card_cvv
+      //onTokenized: (self, res) => logEvent('onTokenized()', res),
       onCardBinChanged: (self, res) => logEvent('onCardBinChanged()', res),
       onAuthorized: (self, res) => {
         logEvent('onAuthorized()', res);

@@ -19,6 +19,7 @@ flowRouter.post('/create-payment-session', async (req, res) => {
   }
 
   try{
+    console.log({url: url, request: request})
     const rawResponse = await fetch(url, request);
     if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
 
