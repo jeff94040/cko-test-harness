@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+  
+  <div id="klarna-payments-container"></div>
+  
+
+<klarna-placement
+data-key="credit-promotion-badge"
+data-locale="en-CA"
+data-purchase-amount=""
+></klarna-placement>
+
+  <script>
+    window.klarnaAsyncCallback = function () {
+        
+      try{
+      Klarna.Payments.init({
+          client_token: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiYzRiNWUzZjMtMjk1MC03OGU3LWI1YmMtYjdhYTNhMjYyNWU4IiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9uYS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZW4iLCJwdXJjaGFzZV9jb3VudHJ5IjoiVVMiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiWW91ciBidXNpbmVzcyBuYW1lIiwic2Vzc2lvbl90eXBlIjoiUEFZTUVOVFMiLCJjbGllbnRfZXZlbnRfYmFzZV91cmwiOiJodHRwczovL25hLnBsYXlncm91bmQua2xhcm5hZXZ0LmNvbSIsInNjaGVtZSI6dHJ1ZSwiZXhwZXJpbWVudHMiOlt7Im5hbWUiOiJrcGMtYWJlIiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwYy1vcGYtdiIsInZhcmlhdGUiOiJ2YXJpYXRlLTEiLCJwYXJhbWV0ZXJzIjp7InYiOiJiZXRhIn19LHsibmFtZSI6ImtwYy1vcGYtZmluYWxpemUtaW4tcG9wdXAiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLW9zbS13aWRnZXQiLCJ2YXJpYXRlIjoidjEifSx7Im5hbWUiOiJrcGMtcHNlbC00NDI5IiwidmFyaWF0ZSI6ImEifSx7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1zdGF0aWMtd2lkZ2V0IiwidmFyaWF0ZSI6ImluZGV4IiwicGFyYW1ldGVycyI6eyJkeW5hbWljIjoidHJ1ZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1zZGstZmxvdyIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXdlYnZpZXctZmxvdyIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifV0sInJlZ2lvbiI6InVzIiwib3JkZXJfYW1vdW50Ijo1MDAwLCJvZmZlcmluZ19vcHRzIjoyLCJvbyI6IjdnIiwidmVyc2lvbiI6InYxLjEwLjAtMTU5MC1nM2ViYzM5MDciLCJhIjowfQ.T2vjklWA_kpceI0L_mdHLBEHKllatYPSQN4VUlDQRlisXDs9RuKUq-HMJ7ug0WNf8Ckr6UV4s3TUwRC3wNwpGVJWDwk8ie-2khJApmS-t5JUREpNezrzLKo3cN2waSC61wQRmCWJ1Kj0ganCJBH8-SNnIXwfVfCYPuebE2eMcgC3tUT0hibvTLQ0ljDwrTFRPtY29urVdNd-90KsTQtFPPjnAmgIVXgSp4JJmEHGTDaBT0MOHHxaE47eBjL0cZi1GaEC-tsExcMN8XOAMJ8qSOJND7nhyr6PS5Q0tDIsUa6-q7cpteRBx_WO5I0igmsppTRgsvXRpzVgLwW09wtG9g",
+          session_id: "579b5245-d20f-409a-b5db-c078d93b7986"
+      })
+
+      Klarna.Payments.load(
+        {
+          container: '#klarna-payments-container'
+        },
+        {},
+        function (res) {
+          console.log(res);
+        }
+      )   
+      }
+      catch(e){
+        console.log('error: ', e)
+      }   
+    }
+
+  </script>
+
+  <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
+  
+</body>
+
+</html>

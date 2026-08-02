@@ -9,6 +9,7 @@ import mongoose from 'mongoose'; // 1. Added mongoose import
 import {paypalRouter} from './routes/paypal.js';
 import {applePayRouter} from './routes/apple-pay.js';
 import {googlePayRouter} from './routes/google-pay.js';
+import {klarnaRouter} from './routes/klarna.js';
 import {flowRouter} from './routes/flow.js';
 import {plaidAchRouter} from './routes/plaid-ach.js';
 import {siftRouter} from './routes/sift.js';
@@ -62,6 +63,7 @@ const pages = {
   '/events': { view: 'events' },
   '/failure': { view: 'failure' },
   '/iframe-wrapper': { view: 'iframe-wrapper' },
+  '/klarna': { view: 'klarna' },
   '/pan-generator': { view: 'pan-generator' },
   '/paypal': { 
     view: 'paypal', 
@@ -118,6 +120,7 @@ Object.entries(pages).forEach(([route, config]) => {
 app.use('/', applePayRouter);
 app.use('/', flowRouter);
 app.use('/', googlePayRouter);
+app.use('/', klarnaRouter);
 app.use('/', paypalRouter);
 app.use('/', plaidAchRouter);
 app.use('/', siftRouter)

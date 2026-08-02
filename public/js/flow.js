@@ -9,6 +9,7 @@ const UI = {
   componentTypeDropdown: document.querySelector('#component-type-dropdown'),
   localeDropdown: document.querySelector('#locale-dropdown'),
   payButtonDropdown: document.querySelector('#pay-button-dropdown'),
+  multiTokenizeDropdown: document.querySelector('#multi-tokenize-dropdown'),
   appearanceInput: document.querySelector('#appearance-input'),
   componentOptionsInput: document.querySelector('#component-options-input'),
   translationsInput: document.querySelector('#translations-input'),
@@ -104,20 +105,13 @@ async function renderPaymentComponents() {
     state.component = null;
   }
 
+  state.wasValid = false;
+
   // 2. UI Reset
   UI.flowElement.innerHTML = '';
   UI.eventsTableBody.innerHTML = '';
   UI.eventsTableHead.innerHTML = '';
   UI.merchantOwnedPayButton.classList.add('invisible');
-
-  // 3. Logic: UI rules for Tokenization
-  const componentTypeSelect = UI.componentTypeDropdown.options[UI.componentTypeDropdown.selectedIndex].text;
-  if (componentTypeSelect === 'card (tokenization only)' || componentTypeSelect === 'card_cvv') {
-    UI.payButtonDropdown.value = 'false';
-    UI.payButtonDropdown.setAttribute('disabled', '');
-  } else {
-    UI.payButtonDropdown.removeAttribute('disabled');
-  }
 
   try {
     // 4. Create Payment Session
@@ -146,34 +140,57 @@ async function renderPaymentComponents() {
       environment: 'sandbox',
       locale: UI.localeDropdown.value,
       paymentSession: paymentSession,
+      captureBillingAddress: true,
       publicKey: UI.publicKey.value,
       translations: safeParse(UI.translationsInput.value),
       
       onReady: () => {
         logEvent('onReady()', {});
-        const useMerchantButton = UI.payButtonDropdown.value === 'false' && componentTypeSelect !== 'card (tokenization only)' && componentTypeSelect !== 'card_cvv';
-        if (useMerchantButton) UI.merchantOwnedPayButton.classList.remove('invisible');
-      },
-      onChange: async () => {
-        logEvent('onChange()', {});
-        if (state.component && state.component.isValid()) {
-          UI.merchantOwnedPayButton.removeAttribute('disabled');
-          if (componentTypeSelect === 'card (tokenization only)' || componentTypeSelect === 'card_cvv') {
-            logEvent('tokenize()', await state.component.tokenize());
-          }
-        } else {
-          UI.merchantOwnedPayButton.setAttribute('disabled', '');
+        const useMerchantButton = UI.payButtonDropdown.value === 'false';
+        if (useMerchantButton){ 
+          UI.merchantOwnedPayButton.classList.remove('invisible');
+          UI.merchantOwnedPayButton.innerHTML = 'Merchant\'s Pay Button'
         }
       },
-      onPaymentCompleted: (_self, res) => logEvent('onPaymentCompleted()', res),
-      onError: (_self, err) => logEvent('onError', err)
+      //onTokenized: (self, res) => logEvent('onTokenized()', res),
+      onChange: async () => {
+        logEvent('onChange()', {});
+        if (state.component) {
+          const isValid = state.component.isValid();
+          if (!state.wasValid && isValid) {
+            state.wasValid = true; 
+            
+            // Loop tokenization based on multi-tokenize dropdown value
+            const tokenizeCount = parseInt(UI.multiTokenizeDropdown.value, 10) || 1;
+            for (let i = 0; i < tokenizeCount; i++) {
+              try {
+                logEvent(`tokenize() [${i + 1}/${tokenizeCount}]`, await state.component.tokenize());
+              } catch (error) {
+                console.error(`Tokenization failed on attempt ${i + 1}`, error);
+              }
+            }
+            
+          } else if (!isValid) {
+            // 3. Only flip it back to false if the component is actually invalid
+            state.wasValid = false;
+          }
+        }
+      },
+      onPaymentCompleted: (_self, res) => {
+        logEvent('onPaymentCompleted()', res)
+        UI.merchantOwnedPayButton.innerHTML = 'Payment Completed';
+      },
+      onError: (_self, err) => {
+        logEvent('onError', err)
+        UI.merchantOwnedPayButton.innerHTML = 'Payment Failed';
+      }
     });
 
     // 6. Create Component Instance
     state.component = checkout.create(UI.componentTypeDropdown.value, {
       showPayButton: UI.payButtonDropdown.value === 'true',
       // onTokenized fires on tokenization only, but not card_cvv
-      //onTokenized: (self, res) => logEvent('onTokenized()', res),
+      // onTokenized: (self, res) => logEvent('onTokenized()', res),
       onCardBinChanged: (self, res) => logEvent('onCardBinChanged()', res),
       onAuthorized: (self, res) => {
         logEvent('onAuthorized()', res);
@@ -210,6 +227,5 @@ UI.merchantOwnedPayButton.addEventListener('click', async () => {
   if (!state.component) return;
   
   UI.merchantOwnedPayButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Submitting...';
-  UI.merchantOwnedPayButton.setAttribute('disabled', '');
   state.component.submit();
 });
