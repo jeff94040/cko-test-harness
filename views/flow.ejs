@@ -35,10 +35,9 @@
           </div>
         </div>        
 
-        <!-- Grouped dropdowns -->
+<!-- Row 1: Component Type, Capture Billing, Display CVV -->
         <div class="row g-2 mb-2">
-          <!-- Full width Component Type -->
-          <div class="col-12">
+          <div class="col-md-4">
             <div class="form-floating">
               <select class="form-select form-select-sm" id="component-type-dropdown">
                 <option value="flow" selected>flow</option>
@@ -54,7 +53,29 @@
             </div>
           </div>
           
-          <!-- 3-column row for remaining dropdowns -->
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select class="form-select form-select-sm" id="capture-billing-address-dropdown">
+                <option value="false" selected>false</option>
+                <option value="true">true</option>
+              </select>
+              <label for="capture-billing-address-dropdown">Capture Billing Address</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select class="form-select form-select-sm" id="display-cvv-dropdown">
+                <option value="hidden" selected>hidden</option>
+                <option value="mandatory">mandatory</option>
+              </select>
+              <label for="display-cvv-dropdown">Display CVV</label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Row 2: Locale, Pay Button, Multi-Tokenize -->
+        <div class="row g-2 mb-2">
           <div class="col-md-4">
             <div class="form-floating">
               <select class="form-select form-select-sm" id="locale-dropdown">
@@ -106,7 +127,6 @@
             </div>
           </div>
         </div>
-        <!-- End Grouped dropdowns -->
 
         <div class="form-floating mb-2">
           <input type="text" class="form-control" id="appearance-input" value='{"colorPrimary": "black"}'>

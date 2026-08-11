@@ -10,6 +10,8 @@ const UI = {
   localeDropdown: document.querySelector('#locale-dropdown'),
   payButtonDropdown: document.querySelector('#pay-button-dropdown'),
   multiTokenizeDropdown: document.querySelector('#multi-tokenize-dropdown'),
+  captureBillingAddressDropdown: document.querySelector('#capture-billing-address-dropdown'),
+  displayCvvDropdown: document.querySelector('#display-cvv-dropdown'),
   appearanceInput: document.querySelector('#appearance-input'),
   componentOptionsInput: document.querySelector('#component-options-input'),
   translationsInput: document.querySelector('#translations-input'),
@@ -70,7 +72,6 @@ const generateNewPayload = () => {
       email: faker.internet.email()
     },
     customer_retry: { max_attempts: 5 },
-    enabled_payment_methods: ["card", "applepay", "googlepay", "paypal", "plaid"],
     disabled_payment_methods: [],
     success_url: UI.successUrl,
     failure_url: UI.failureUrl,
@@ -133,14 +134,23 @@ async function renderPaymentComponents() {
 
     if (!paymentSession.id) return;
 
+    // Parse the component options from the UI text input
+    const parsedComponentOptions = safeParse(UI.componentOptionsInput.value);
+    
+    // Ensure the card object exists, then inject the displayCvv dropdown value
+    if (!parsedComponentOptions.card) {
+      parsedComponentOptions.card = {};
+    }
+    parsedComponentOptions.card.displayCvv = UI.displayCvvDropdown.value;
+
     // 5. Initialize SDK
     const checkout = await CheckoutWebComponents({
       appearance: safeParse(UI.appearanceInput.value),
-      componentOptions: safeParse(UI.componentOptionsInput.value),
+      componentOptions: parsedComponentOptions,
       environment: 'sandbox',
       locale: UI.localeDropdown.value,
       paymentSession: paymentSession,
-      captureBillingAddress: true,
+      captureBillingAddress: UI.captureBillingAddressDropdown.value === 'true',
       publicKey: UI.publicKey.value,
       translations: safeParse(UI.translationsInput.value),
       
