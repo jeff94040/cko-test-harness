@@ -32,6 +32,7 @@ const UI = {
  */
 const state = {
   component: null,
+  latestCardScheme: null,
   // Automatically calculates count based on existing rows
   get nextEventIndex() {
     return UI.eventsTableBody.rows.length + 1;
@@ -91,7 +92,7 @@ function logEvent(eventName, eventPayload) {
     <th scope='row'>${state.nextEventIndex}</th>
     <td>${eventName}</td>
     <td>${isValid}</td>
-    <td><pre style="font-size: 0.75rem; margin:0;">${JSON.stringify(eventPayload, null, 2)}</pre></td>
+    <td><pre style="font-size: 0.75rem; margin:0; white-space: pre-wrap; word-break: break-all;">${JSON.stringify(eventPayload, null, 2)}</pre></td>
   `;
   UI.eventsTableBody.insertBefore(row, UI.eventsTableBody.firstChild);
 }
@@ -201,11 +202,41 @@ async function renderPaymentComponents() {
       showPayButton: UI.payButtonDropdown.value === 'true',
       // onTokenized fires on tokenization only, but not card_cvv
       // onTokenized: (self, res) => logEvent('onTokenized()', res),
-      onCardBinChanged: (self, res) => logEvent('onCardBinChanged()', res),
+      onCardBinChanged: async (self, res) => {
+        logEvent('onCardBinChanged()', res)
+        state.latestCardScheme = res.scheme // visa, mastercard, discover, etc
+      },
       onAuthorized: (self, res) => {
         logEvent('onAuthorized()', res);
         return { continue: true };
-      }
+      }/*,
+      handleSubmit: async (self, res) => {
+
+        logEvent('handleSubmit', res)
+
+        // Submit Payment Session
+        const sessionResponse = await fetch('/submit-payment-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': UI.secretKey.value,
+            'Session-Id': JSON.parse(UI.resTextArea.value).id
+          },
+          body: JSON.stringify({
+            'session_data': res.session_data,
+            'amount': 1000,
+            'payment_type': state.latestCardScheme === 'discover' ? 'Unscheduled' : JSON.parse(UI.resTextArea.value).payment_type
+          })
+        });
+
+        if (!sessionResponse.ok) throw new Error(`HTTP Error: ${sessionResponse.status}`);
+
+        const paymentSession = await sessionResponse.json();
+
+        console.log('response from /submit-payment-session', paymentSession)
+        return paymentSession
+        
+      }*/
     });
 
     UI.eventsTableHead.innerHTML = "<tr><th>#</th><th>Event</th><th>isValid()</th><th>Payload</th></tr>";

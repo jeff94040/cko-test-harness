@@ -34,4 +34,34 @@ flowRouter.post('/create-payment-session', async (req, res) => {
 
 });
 
+// submit a payment session
+flowRouter.post('/submit-payment-session', async (req, res) => {
+
+  //console.log(req.body)
+  const url = `https://api.sandbox.checkout.com/payment-sessions/${req.header('Session-Id')}/submit`
+  const request = {
+    method: 'POST',
+    body: JSON.stringify(req.body),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': req.get('Authorization') === 'sk_sbox_***************************' ? process.env.CKO_NAS_SECRET_KEY : req.get('Authorization')
+    }
+  }
+
+  try{
+    console.log({url: url, request: request})
+    const rawResponse = await fetch(url, request);
+    if (!rawResponse.ok) { throw { url: url, status: rawResponse.status, statusText: rawResponse.statusText, details: await rawResponse.text() } }
+
+    const response = await rawResponse.json()
+    console.log({url: url, status: rawResponse.status, response: response})
+
+    res.json(response)
+  } catch (error) {
+    console.error(error)
+    res.status(error.status || 500).end()
+  }
+
+});
+
 export {flowRouter}; 
