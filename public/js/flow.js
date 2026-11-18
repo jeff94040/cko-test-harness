@@ -175,7 +175,15 @@ async function renderPaymentComponents() {
             const tokenizeCount = parseInt(UI.multiTokenizeDropdown.value, 10) || 1;
             for (let i = 0; i < tokenizeCount; i++) {
               try {
-                logEvent(`tokenize() [${i + 1}/${tokenizeCount}]`, await state.component.tokenize());
+                const startTime = performance.now(); // Start timer
+                
+                const tokenResult = await state.component.tokenize();
+                
+                const endTime = performance.now(); // End timer
+                const durationMs = Math.round(endTime - startTime);
+                //console.log(`tokenize() attempt ${i + 1} took ${durationMs} ms`);
+
+                logEvent(`tokenize() ${i + 1}/${tokenizeCount} in ${durationMs} ms`, tokenResult);              
               } catch (error) {
                 console.error(`Tokenization failed on attempt ${i + 1}`, error);
               }

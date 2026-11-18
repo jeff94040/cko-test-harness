@@ -21,8 +21,8 @@ const baseCardPaymentMethod = {
 const tokenizationSpecification = {
     type: 'PAYMENT_GATEWAY',
     parameters: {
-        'gateway': gateway,
-        'gatewayMerchantId': UI.publicKey
+        'gateway': gateway
+        //,'gatewayMerchantId': UI.publicKey
     }
 };
 
@@ -74,7 +74,8 @@ async function onGooglePaymentButtonClicked() {
         countryCode: 'US'
     };
     paymentDataRequest.merchantInfo = {
-        merchantName: merchantName
+        merchantName: merchantName,
+        merchantId: UI.publicKey // temporary test
     };
 
     try {
